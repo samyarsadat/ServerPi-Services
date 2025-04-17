@@ -1,0 +1,32 @@
+# ServerPi Services - WireGuard VPN Server Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    wireguard:
+        build:
+            dockerfile: Dockerfile
+            context: ./
+        container_name: wireguard-server
+        hostname: wireguard-server
+        env_file:
+            - .env
+            - secrets.env
+        restart: unless-stopped
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        volumes:
+            - ./wireguard:/etc/wireguard
+        ports:
+            - "49732:49732/udp"
+        expose:
+            - "9586"
+            - "8850"
+        sysctls:
+            - net.ipv4.conf.all.src_valid_mark=1
+            - net.ipv4.ip_forward=1
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

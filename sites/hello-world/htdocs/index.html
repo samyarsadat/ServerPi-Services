@@ -1,0 +1,348 @@
+<!-- A random hello world page I generated using Claude 3.7 Sonnet... just for testing purposes. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Hello World</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --background: #f8fafc;
+            --text: #0f172a;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            color: transparent;
+            padding: 1rem 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 10px 25px var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.5s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px var(--card-shadow);
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s ease;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .color-scheme {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .color-option:hover {
+            transform: scale(1.2);
+        }
+
+        #counter-display {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .dark-mode {
+            --background: #1e293b;
+            --text: #f8fafc;
+            --card-bg: #334155;
+            --card-shadow: rgba(0, 0, 0, 0.25);
+        }
+
+        .fun-mode {
+            --primary: #f59e0b;
+            --secondary: #10b981;
+            --accent: #f43f5e;
+        }
+
+        .cool-mode {
+            --primary: #0ea5e9;
+            --secondary: #06b6d4;
+            --accent: #3b82f6;
+        }
+
+        .greeting-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .greeting {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 1rem;
+            font-weight: bold;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hello, World!</h1>
+        </header>
+
+        <div class="card">
+            <h2>Welcome to my fun test page!</h2>
+            <p>This is a simple yet interactive Hello World page with various fun elements to play with.</p>
+
+            <h3>Change Color Scheme:</h3>
+            <div class="color-scheme">
+                <div class="color-option" style="background-color: #6366f1;" onclick="setColorScheme('default')"></div>
+                <div class="color-option" style="background-color: #f59e0b;" onclick="setColorScheme('fun')"></div>
+                <div class="color-option" style="background-color: #0ea5e9;" onclick="setColorScheme('cool')"></div>
+            </div>
+
+            <button class="btn" id="dark-mode-toggle">Toggle Dark Mode</button>
+        </div>
+
+        <div class="card">
+            <h2>Fun Counter</h2>
+            <p>Click the button to increase the counter and see confetti!</p>
+            <div id="counter-display">0</div>
+            <button class="btn" id="counter-btn">Increment</button>
+            <button class="btn" id="reset-btn">Reset</button>
+        </div>
+
+        <div class="card">
+            <h2>Hello in Different Languages</h2>
+            <p>Click the button to see greetings from around the world:</p>
+            <button class="btn" id="greetings-btn">Show Greetings</button>
+            <div class="greeting-container" id="greetings-container"></div>
+        </div>
+
+        <div class="card">
+            <h2>Random Facts</h2>
+            <p>Generate a random fun fact:</p>
+            <button class="btn" id="fact-btn">New Fact</button>
+            <p id="fact-display">Click the button to see a fact!</p>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        // Color scheme functions
+        function setColorScheme(scheme) {
+            document.body.classList.remove('fun-mode', 'cool-mode');
+            if (scheme !== 'default') {
+                document.body.classList.add(`${scheme}-mode`);
+            }
+        }
+
+        // Counter and confetti
+        const counterDisplay = document.getElementById('counter-display');
+        const counterBtn = document.getElementById('counter-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        let count = 0;
+
+        counterBtn.addEventListener('click', () => {
+            count++;
+            counterDisplay.textContent = count;
+            createConfetti();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            count = 0;
+            counterDisplay.textContent = count;
+        });
+
+        function createConfetti() {
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+
+                // Random position around the button
+                const x = counterBtn.getBoundingClientRect().left + Math.random() * counterBtn.offsetWidth;
+                const y = counterBtn.getBoundingClientRect().top;
+
+                confetti.style.left = `${x}px`;
+                confetti.style.top = `${y}px`;
+                confetti.style.backgroundColor = getRandomColor();
+
+                document.body.appendChild(confetti);
+
+                // Animate the confetti
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 3 + Math.random() * 5;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity - 10; // Initial upward velocity
+
+                let posX = x;
+                let posY = y;
+
+                const gravity = 0.3;
+                let timeAlive = 0;
+
+                function animateConfetti() {
+                    posX += vx;
+                    posY += vy + gravity * timeAlive;
+                    timeAlive++;
+
+                    confetti.style.left = `${posX}px`;
+                    confetti.style.top = `${posY}px`;
+
+                    if (timeAlive < 100 && posY < window.innerHeight) {
+                        requestAnimationFrame(animateConfetti);
+                    } else {
+                        confetti.remove();
+                    }
+                }
+
+                requestAnimationFrame(animateConfetti);
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#0ea5e9'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Greetings
+        const greetings = [
+            { text: "Hello", lang: "English" },
+            { text: "Hola", lang: "Spanish" },
+            { text: "Bonjour", lang: "French" },
+            { text: "Ciao", lang: "Italian" },
+            { text: "Konnichiwa", lang: "Japanese" },
+            { text: "Nǐ hǎo", lang: "Chinese" },
+            { text: "Annyeonghaseyo", lang: "Korean" },
+            { text: "Namaste", lang: "Hindi" },
+            { text: "Olá", lang: "Portuguese" },
+            { text: "Guten Tag", lang: "German" },
+            { text: "Salaam", lang: "Arabic" },
+            { text: "Sawatdee", lang: "Thai" }
+        ];
+
+        const greetingsBtn = document.getElementById('greetings-btn');
+        const greetingsContainer = document.getElementById('greetings-container');
+
+        greetingsBtn.addEventListener('click', () => {
+            greetingsContainer.innerHTML = '';
+
+            greetings.forEach((greeting, index) => {
+                setTimeout(() => {
+                    const greetingElement = document.createElement('div');
+                    greetingElement.classList.add('greeting');
+                    greetingElement.textContent = `${greeting.text} (${greeting.lang})`;
+                    greetingsContainer.appendChild(greetingElement);
+                }, index * 200);
+            });
+        });
+
+        // Random facts
+        const facts = [
+            "The shortest war in history was between Britain and Zanzibar in 1896. It lasted only 38 minutes.",
+            "A group of flamingos is called a 'flamboyance'.",
+            "The world's oldest known living tree is over 5,000 years old.",
+            "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly good to eat.",
+            "Octopuses have three hearts and blue blood.",
+            "Bananas are berries, but strawberries aren't.",
+            "The Hawaiian alphabet has only 12 letters.",
+            "A day on Venus is longer than a year on Venus.",
+            "The Great Wall of China is not visible from space with the naked eye.",
+            "Cows have best friends and get stressed when separated from them."
+        ];
+
+        const factBtn = document.getElementById('fact-btn');
+        const factDisplay = document.getElementById('fact-display');
+
+        factBtn.addEventListener('click', () => {
+            const randomFact = facts[Math.floor(Math.random() * facts.length)];
+            factDisplay.textContent = randomFact;
+        });
+    </script>
+</body>
+</html>

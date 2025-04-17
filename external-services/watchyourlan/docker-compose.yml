@@ -1,0 +1,16 @@
+# ServerPi Services - WatchYourLan Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    watchyourlan:
+        image: aceberg/watchyourlan
+        container_name: watchyourlan
+        hostname: watchyourlan
+        network_mode: host
+        env_file: .env
+        restart: unless-stopped
+        volumes:
+            - ./data:/data
+
+# No networks defined here, as this service is using host networking mode.
+# The Docker host's IP address and container port should be used in Caddy.

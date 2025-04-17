@@ -1,0 +1,22 @@
+# ServerPi Services - Docker Registry Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    registry:
+        image: registry:latest
+        container_name: docker-registry
+        hostname: docker-registry
+        restart: unless-stopped
+        env_file:
+            - .env
+            - secrets.env
+        expose:
+            - 5000
+            - 5001
+        volumes:
+            - ./data:/data
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

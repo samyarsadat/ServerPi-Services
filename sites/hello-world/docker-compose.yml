@@ -1,0 +1,17 @@
+# ServerPi Services - HTTPD Hello World Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    httpd-server:
+        image: httpd:2-alpine
+        container_name: httpd-hello-world
+        hostname: httpd-hello-world
+        env_file: .env
+        restart: unless-stopped
+        volumes:
+            - ./htdocs:/usr/local/apache2/htdocs
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

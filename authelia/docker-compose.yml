@@ -1,0 +1,49 @@
+# ServerPi Services - Authelia Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+name: "authelia"
+services:
+    # AUTHELIA SERVICE
+    authelia:
+        image: authelia/authelia:latest
+        container_name: authelia
+        hostname: authelia
+        restart: unless-stopped
+        env_file:
+            - .env
+            - secrets.env
+        depends_on:
+            - database
+            - redis
+        volumes:
+            - ./config:/config
+
+    # POSTGRES DATABASE FOR AUTHELIA
+    database:
+        image: postgres:15
+        container_name: authelia-database
+        hostname: authelia-database
+        restart: unless-stopped
+        env_file:
+            - .env
+            - secrets.env
+        volumes:
+            - ./postgres:/var/lib/postgresql/data
+
+    # REDIS CACHE FOR AUTHELIA
+    redis:
+        image: redis:7
+        container_name: authelia-redis
+        hostname: authelia-redis
+        restart: unless-stopped
+        env_file:
+            - .env
+            - secrets.env
+        command: "redis-server --save 60 1 --loglevel warning --requirepass $REDIS_PASSWORD"
+        volumes:
+            - ./redis:/data
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

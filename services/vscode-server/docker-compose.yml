@@ -1,0 +1,19 @@
+# ServerPi Services - VS Code Server Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    vscode-server:
+        image: lscr.io/linuxserver/code-server:latest
+        container_name: vscode-server
+        hostname: vscode-server
+        env_file:
+            - .env
+            - secrets.env
+        restart: unless-stopped
+        volumes:
+            - ./config:/config
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

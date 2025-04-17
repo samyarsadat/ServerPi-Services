@@ -1,0 +1,53 @@
+# ServerPi Services - Wordpress Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    database:
+        image: mysql:8.0
+        container_name: wordpress-test-db
+        hostname: wordpress-test-db
+        restart: unless-stopped
+        env_file:
+            - secrets.env
+            - .env
+        volumes:
+            - ./dbdata:/var/lib/mysql
+        command: "--default-authentication-plugin=mysql_native_password"
+        networks:
+            - $INTERNAL_NETWORK
+
+    wordpress:
+        depends_on:
+            - database
+        image: wordpress:6.6-fpm-alpine
+        container_name: wordpress-test
+        hostname: wordpress-test
+        restart: unless-stopped
+        env_file:
+            - secrets.env
+            - .env
+        volumes:
+            - ./wordpress:/var/www/html
+            - ./wp_php_conf.ini:/usr/local/etc/php/conf.d/uploads.ini
+        networks:
+            - $INTERNAL_NETWORK
+
+    nginx:
+        depends_on:
+            - wordpress
+        image: nginx:1.15.12-alpine
+        container_name: wordpress-test-nginx
+        hostname: wordpress-test-nginx
+        restart: unless-stopped
+        volumes:
+            - ./wordpress:/var/www/html
+            - ./nginx-conf:/etc/nginx/conf.d
+        networks:
+            - $DOCKER_MY_NETWORK
+            - $INTERNAL_NETWORK
+
+networks:
+    test_wp_net:
+        external: true
+    caddy_net:
+        external: true

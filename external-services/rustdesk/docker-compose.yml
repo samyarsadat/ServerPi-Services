@@ -1,0 +1,22 @@
+# ServerPi Services - RustDesk Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    rustdesk:
+        image: rustdesk/rustdesk-server-s6:latest
+        container_name: rustdesk
+        hostname: rustdesk
+        restart: unless-stopped
+        env_file: .env
+        ports:
+            - "21115:21115"
+            - "21116:21116"
+            - "21116:21116/udp"
+            - "21117:21117"
+            - "21118:21118"
+            - "21119:21119"
+        volumes:
+            - ./rustdesk_data:/data
+
+# No networks defined here, as this service does not need reverse proxying.
+# All required ports are exposed to the host machine.

@@ -1,0 +1,15 @@
+# ServerPi Services - Whomai Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    whoami:
+        image: "traefik/whoami"
+        container_name: "whoami"
+        hostname: "whoami"
+        env_file: .env
+        restart: unless-stopped
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

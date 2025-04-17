@@ -1,0 +1,5 @@
+#!/sbin/openrc-run
+command="/bin/wireguard_exporter"
+command_args="-wireguard.peer-file /etc/wireguard_exporter/peers.toml"
+command_background=true
+pidfile="/run/wireguard_exporter.pid"

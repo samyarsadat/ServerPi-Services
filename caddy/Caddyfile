@@ -1,0 +1,127 @@
+# Global configs
+{
+    servers {
+        # Add Cloudflare IPv4 and IPv6 addresses to trusted proxies.
+        trusted_proxies cloudflare {
+            interval 12h
+            timeout 15s
+        }
+
+        metrics
+    }
+
+    admin 0.0.0.0:2019
+}
+
+# Deny requests that do not originate from Cloudflare
+(cf_only) {
+    # Update IPs here from the shell script output
+    # TODO: Automate this!
+    @denied not remote_ip 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+    respond @denied "Please access this resource through Cloudflare." 403
+}
+
+# Authentication
+(secure) {
+    forward_auth {args.0} https://auth.{$MY_DOMAIN} {
+        uri /api/verify?rd=https://auth.{$MY_DOMAIN}
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+        header_up Host {upstream_hostport}
+    }
+}
+
+# LAN only filtering
+(LAN_only) {
+    @non_local_request not remote_ip 192.168.1.0/24
+    respond @non_local_request "LAN-only resource." 403
+}
+
+# Logging
+(log_common) {
+    log {
+        output file /data/logs/caddy_access.log {
+            roll_size 20mb
+            roll_keep 5
+        }
+    }
+}
+
+
+# WWW redirect
+www.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    redir https://{$MY_DOMAIN}{uri}
+}
+
+# WireGuard HTTP route
+wireguard.{$MY_DOMAIN} {
+    import log_common
+    # import cf_only
+    import secure *
+    reverse_proxy wireguard-server:8850
+}
+
+# Monitoring
+grafana.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy grafana:3000
+}
+
+prometheus.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy prometheus:9090
+}
+
+# WordPress test
+wp-test.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    reverse_proxy wordpress-nginx:8088
+}
+
+# Proxy routes
+{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy httpd-hello-world:80
+}
+
+auth.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    reverse_proxy authelia:9091
+}
+
+whoami.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy whoami:80
+}
+
+docker-reg.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    # import secure *
+    reverse_proxy docker-registry:5000
+}
+
+code.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy vscode-server:8443
+}
+
+lanwatch.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy {$HOST_IP_ADDR}:8840
+}

@@ -1,0 +1,53 @@
+# ServerPi Services - Caddy V2 Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    caddy:
+        image: samyarsadat/service_images:serverpi-caddy-latest
+        container_name: caddy
+        hostname: caddy
+        restart: unless-stopped
+        env_file: .env
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+            - "2019:2019"
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - ./caddy_config:/config
+            - ./caddy_data:/data
+
+    # LOG AGENT FOR PUSHING LOGS TO LOKI
+    promtail:
+        image: grafana/promtail:latest
+        container_name: caddy-promtail
+        hostname: caddy-promtail
+        restart: unless-stopped
+        depends_on:
+            - caddy
+            - geoip-updater
+        volumes:
+            - ./promtail-config.yml:/etc/promtail-config.yml
+            - ./caddy_data/logs:/var/log/caddy:ro
+            - ./geoip_databases/GeoLite2-City.mmdb:/etc/GeoLite2-City.mmdb:ro
+            - ./geoip_databases/GeoLite2-ASN.mmdb:/etc/GeoLite2-ASN.mmdb:ro
+        command:
+            - '-config.file=/etc/promtail-config.yml'
+
+    # AUTOMATIC MAXMIND GEOIP DATABASE UPDATER
+    geoip-updater:
+        image: ghcr.io/maxmind/geoipupdate:v7.0.1
+        container_name: caddy-geoip-updater
+        hostname: caddy-geoip-updater
+        env_file:
+            - .env
+            - secrets.env
+        restart: unless-stopped
+        volumes:
+            - ./geoip_databases:/usr/share/GeoIP
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true
