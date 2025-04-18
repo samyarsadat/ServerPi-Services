@@ -81,7 +81,7 @@ prometheus.{$MY_DOMAIN} {
 wp-test.{$MY_DOMAIN} {
     import log_common
     import cf_only
-    reverse_proxy wordpress-nginx:8088
+    reverse_proxy wordpress-test-nginx:8088
 }
 
 # Proxy routes

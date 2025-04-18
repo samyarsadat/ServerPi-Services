@@ -28,7 +28,7 @@ services:
             - .env
         volumes:
             - ./wordpress:/var/www/html
-            - ./wp_php_conf.ini:/usr/local/etc/php/conf.d/uploads.ini
+            - ./wp_php_conf.ini:/usr/local/etc/php/conf.d/php-config.ini
         networks:
             - $INTERNAL_NETWORK
 
