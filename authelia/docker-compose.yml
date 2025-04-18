@@ -39,9 +39,10 @@ services:
         env_file:
             - .env
             - secrets.env
-        command: "redis-server --save 60 1 --loglevel warning --requirepass $REDIS_PASSWORD"
+        entrypoint: ["/redis-entry.sh"]
         volumes:
             - ./redis:/data
+            - ./redis-entry.sh:/redis-entry.sh
 
 networks:
     default:
