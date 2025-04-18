@@ -39,7 +39,7 @@ services:
         env_file:
             - .env
             - secrets.env
-        entrypoint: ["/redis-entry.sh"]
+        entrypoint: ["/bin/sh", "/redis-entry.sh"]
         volumes:
             - ./redis:/data
             - ./redis-entry.sh:/redis-entry.sh
