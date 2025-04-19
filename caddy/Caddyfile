@@ -125,3 +125,10 @@ lanwatch.{$MY_DOMAIN} {
     import secure *
     reverse_proxy {$HOST_IP_ADDR}:8840
 }
+
+excalidraw.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy excalidraw-web:80
+}

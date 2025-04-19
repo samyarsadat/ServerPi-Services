@@ -1,0 +1,15 @@
+# ServerPi Services - Whomai Compose File
+# Prepared by Samyar Sadat Akhavi, 2024. 
+
+services:
+    excalidraw:
+        image: excalidraw/excalidraw:latest
+        container_name: excalidraw-web
+        hostname: excalidraw-web
+        restart: unless-stopped
+        env_file: .env
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true
