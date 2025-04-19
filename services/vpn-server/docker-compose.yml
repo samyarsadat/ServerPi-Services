@@ -3,9 +3,7 @@
 
 services:
     wireguard:
-        build:
-            dockerfile: Dockerfile
-            context: ./
+        image: samyarsadat/service_images:serverpi-wgeasy-latest
         container_name: wireguard-server
         hostname: wireguard-server
         env_file:
@@ -25,6 +23,8 @@ services:
         sysctls:
             - net.ipv4.conf.all.src_valid_mark=1
             - net.ipv4.ip_forward=1
+        volumes:
+            - ./exporter_name_mappings.toml:/etc/wireguard_exporter/peers.toml
 
 networks:
     default:
