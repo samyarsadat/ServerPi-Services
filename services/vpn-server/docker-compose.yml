@@ -15,6 +15,7 @@ services:
             - SYS_MODULE
         volumes:
             - ./wireguard:/etc/wireguard
+            - ./exporter_name_mappings.toml:/etc/wireguard_exporter/peers.toml
         ports:
             - "49732:49732/udp"
         expose:
@@ -23,8 +24,6 @@ services:
         sysctls:
             - net.ipv4.conf.all.src_valid_mark=1
             - net.ipv4.ip_forward=1
-        volumes:
-            - ./exporter_name_mappings.toml:/etc/wireguard_exporter/peers.toml
 
 networks:
     default:
