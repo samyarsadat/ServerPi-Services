@@ -37,7 +37,7 @@ services:
 
     # AUTOMATIC MAXMIND GEOIP DATABASE UPDATER
     geoip-updater:
-        image: ghcr.io/maxmind/geoipupdate:v7.0.1
+        image: ghcr.io/maxmind/geoipupdate:latest
         container_name: caddy-geoip-updater
         hostname: caddy-geoip-updater
         env_file:
