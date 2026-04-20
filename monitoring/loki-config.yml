@@ -8,16 +8,30 @@ server:
 
 common:
     path_prefix: /loki
-    storage:
-        filesystem:
-            chunks_directory: /loki/chunks
-            rules_directory: /loki/rules
     replication_factor: 1
     ring:
         kvstore:
             store: inmemory
 
-# --- Disable splitting to fix "too many outstanding requests"
+storage_config:
+    tsdb_shipper:
+        active_index_directory: /loki/tsdb-index
+        cache_location: /loki/tsdb-cache
+        cache_ttl: 24h
+
+    filesystem:
+        directory: /loki/chunks
+
+schema_config:
+    configs:
+        - from: 2024-01-01
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+              prefix: index_
+              period: 24h
+
 query_range:
     parallelise_shardable_queries: false
 
@@ -30,17 +44,7 @@ compactor:
 
 limits_config:
     retention_period: 240h
-    split_queries_by_interval: 0   # part of disable splitting fix
-
-schema_config:
-    configs:
-        - from: 2020-10-24
-          store: boltdb-shipper
-          object_store: filesystem
-          schema: v11
-          index:
-              prefix: index_
-              period: 24h
+    split_queries_by_interval: 0
 
 ruler:
     alertmanager_url: http://alertmanager:9093

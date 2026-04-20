@@ -4,7 +4,7 @@
 services:
     # MONITORING SYSTEM AND THE METRICS DATABASE
     prometheus:
-        image: prom/prometheus:v2.42.0
+        image: prom/prometheus:v3
         container_name: prometheus
         hostname: prometheus
         user: root
@@ -28,7 +28,7 @@ services:
 
     # WEB BASED UI VISUALISATION OF METRICS
     grafana:
-        image: grafana/grafana:9.4.3
+        image: grafana/grafana:11
         container_name: grafana
         hostname: grafana
         user: root
@@ -45,7 +45,7 @@ services:
 
     # HOST LINUX MACHINE METRICS EXPORTER
     node-exporter:
-        image: prom/node-exporter:v1.5.0
+        image: prom/node-exporter:v1
         container_name: node-exporter
         hostname: node-exporter
         restart: unless-stopped
@@ -65,7 +65,7 @@ services:
 
     # DOCKER CONTAINERS METRICS EXPORTER
     cadvisor:
-        image: gcr.io/cadvisor/cadvisor:v0.47.1
+        image: gcr.io/cadvisor/cadvisor:latest
         container_name: cadvisor
         hostname: cadvisor
         restart: unless-stopped
@@ -85,7 +85,7 @@ services:
 
     # LOG MANAGEMENT WITH LOKI
     loki:
-        image: grafana/loki:main-0295fd4
+        image: grafana/loki:3
         container_name: loki
         hostname: loki
         user: root
