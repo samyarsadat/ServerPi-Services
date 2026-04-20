@@ -28,7 +28,7 @@ services:
 
     # WEB BASED UI VISUALISATION OF METRICS
     grafana:
-        image: grafana/grafana:11
+        image: grafana/grafana:latest
         container_name: grafana
         hostname: grafana
         user: root
