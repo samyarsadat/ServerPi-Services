@@ -29,6 +29,7 @@ services:
             - secrets.env
         volumes:
             - ./postgres:/var/lib/postgresql/data
+            - ./config/secrets/STORAGE_PASSWORD:/STORAGE_PASSWORD:ro
 
     # REDIS CACHE FOR AUTHELIA
     redis:
@@ -43,6 +44,7 @@ services:
         volumes:
             - ./redis:/data
             - ./redis-entry.sh:/redis-entry.sh
+            - ./config/secrets/REDIS_PASSWORD:/REDIS_PASSWORD:ro
 
 networks:
     default:
