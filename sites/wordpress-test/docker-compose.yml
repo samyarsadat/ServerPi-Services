@@ -3,7 +3,7 @@
 
 services:
     database:
-        image: mysql:8.0
+        image: mysql:8.4
         container_name: wordpress-test-db
         hostname: wordpress-test-db
         restart: unless-stopped
@@ -19,7 +19,7 @@ services:
     wordpress:
         depends_on:
             - database
-        image: wordpress:6.6-fpm-alpine
+        image: wordpress:6.7-fpm-alpine
         container_name: wordpress-test
         hostname: wordpress-test
         restart: unless-stopped
@@ -35,7 +35,7 @@ services:
     nginx:
         depends_on:
             - wordpress
-        image: nginx:1.15.12-alpine
+        image: nginx:1.27-alpine
         container_name: wordpress-test-nginx
         hostname: wordpress-test-nginx
         restart: unless-stopped
