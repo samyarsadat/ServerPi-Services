@@ -39,15 +39,14 @@ session:
     # https://www.authelia.com/configuration/session/redis/
     # Set also AUTHELIA_SESSION_REDIS_PASSWORD_FILE if appropriate
     redis:
-        host: redis
-        port: 6379
+        address: tcp://redis:6379
 
 # Storage https://www.authelia.com/configuration/storage/postgres/
 # Set also AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE
 # Set also AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE
 storage:
     postgres:
-        host: database
+        address: tcp://database:5432
         database: authelia
         username: authelia
 
@@ -55,7 +54,6 @@ storage:
 # Set also AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
 notifier:
     smtp:
-        host: in-v3.mailjet.com
-        port: 587
+        address: submission://in-v3.mailjet.com:587
         username: [MAILJET_API_USERNAME]
         sender: "Authelia <authelia@ssa-selfhosted.com>"
