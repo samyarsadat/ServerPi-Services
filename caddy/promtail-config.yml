@@ -1,5 +1,5 @@
 clients:
-    - url: http://loki:3100/loki/api/v1/push
+    - url: http://192.168.1.114:3100/loki/api/v1/push
 
 scrape_configs:
     - job_name: caddy_access_log
@@ -17,11 +17,3 @@ scrape_configs:
                 expressions:
                     request_remote_ip: request.remote_ip
                     request_client_ip: request.client_ip
-          - geoip:
-                db: "/etc/GeoLite2-City.mmdb"
-                source: "request_remote_ip"
-                db_type: "city"
-          - geoip:
-                db: "etc/GeoLite2-ASN.mmdb"
-                source: "request_remote_ip"
-                db_type: "asn"
