@@ -47,6 +47,15 @@
 }
 
 
+# ServerPi-Two routes
+whoami-two.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
+    import secure *
+    reverse_proxy {$SVPI2_IP_ADDR}:80
+}
+
+
 # WWW redirect
 www.{$MY_DOMAIN} {
     import log_common
