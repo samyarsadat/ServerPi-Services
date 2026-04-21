@@ -48,7 +48,7 @@
 
 
 # ServerPi-Two routes
-whoami-two.{$MY_DOMAIN} {
+two-whoami.{$MY_DOMAIN} {
     import log_common
     import cf_only
     import secure *
