@@ -20,7 +20,7 @@
 
 
 # Proxy routes
-two-whoami.{$MY_DOMAIN} {
+http://two-whoami.{$MY_DOMAIN} {
     import log_common
     reverse_proxy whoami:80
 }
