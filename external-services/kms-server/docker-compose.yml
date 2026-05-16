@@ -13,7 +13,7 @@ services:
             - kms_internal_net
 
     kms-server-gui:
-        image: 11notes/kms-gui:latest
+        image: 11notes/kms-gui:1.0.3
         container_name: kms-server-gui
         hostname: kms-server-gui
         env_file: .env
