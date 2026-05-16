@@ -1,0 +1,33 @@
+services:
+    kms-server:
+        image: 11notes/kms:1.4.8
+        container_name: kms-server
+        hostname: kms-server
+        env_file: .env
+        restart: unless-stopped
+        ports:
+            - 1688:1688/tcp
+        volumes:
+            - ./data:/kms/var
+        networks:
+            - kms_internal_net
+
+    kms-server-gui:
+        image: 11notes/kms-gui:latest
+        container_name: kms-server-gui
+        hostname: kms-server-gui
+        env_file: .env
+        restart: unless-stopped
+        depends_on:
+            kms-server:
+                condition: service_healthy
+                restart: true
+        ports:
+            - 3688:3000/tcp
+        volumes:
+            - ./data:/kms/var
+        networks:
+            - kms_internal_net
+
+networks:
+    kms_internal_net:
