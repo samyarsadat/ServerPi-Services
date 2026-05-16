@@ -8,9 +8,9 @@ services:
         ports:
             - 1688:1688/tcp
         volumes:
-            - ./data:/kms/var
+            - data:/kms/var
         networks:
-            - kms_internal_net
+            - internal_net
 
     kms-server-gui:
         image: 11notes/kms-gui:1.0.3
@@ -25,9 +25,12 @@ services:
         ports:
             - 3688:3000/tcp
         volumes:
-            - ./data:/kms/var
+            - data:/kms/var
         networks:
-            - kms_internal_net
+            - internal_net
+
+volumes:
+    data:
 
 networks:
-    kms_internal_net:
+    internal_net:
