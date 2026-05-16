@@ -14,7 +14,7 @@ services:
             - ./dbdata:/var/lib/mysql
         command: "--default-authentication-plugin=mysql_native_password"
         networks:
-            - $INTERNAL_NETWORK
+            - test_wp_net
 
     wordpress:
         depends_on:
@@ -30,7 +30,7 @@ services:
             - ./wordpress:/var/www/html
             - ./wp_php_conf.ini:/usr/local/etc/php/conf.d/php-config.ini
         networks:
-            - $INTERNAL_NETWORK
+            - test_wp_net
 
     nginx:
         depends_on:
@@ -44,7 +44,7 @@ services:
             - ./nginx-conf:/etc/nginx/conf.d
         networks:
             - $DOCKER_MY_NETWORK
-            - $INTERNAL_NETWORK
+            - test_wp_net
 
 networks:
     test_wp_net:
