@@ -1,0 +1,40 @@
+# ServerPi Services - Mailserver Compose File
+# Prepared by Samyar Sadat Akhavi, 2026. 
+
+services:
+    # MAIL SERVER (SMTP/IMAP)
+    mailserver:
+        image: ghcr.io/docker-mailserver/docker-mailserver:15
+        container_name: mailserver
+        hostname: mailserver
+        restart: unless-stopped
+        stop_grace_period: 1m
+        network_mode: host
+        env_file:
+            - .env
+            - secrets.env
+        cap_add:
+            - NET_ADMIN
+        depends_on:
+            - mail-certbot
+        volumes:
+            - ./data/dms/mail-data:/var/mail
+            - ./data/dms/mail-state:/var/mail-state
+            - ./data/dms/mail-logs:/var/log/mail
+            - ./data/dms/config:/tmp/docker-mailserver
+            - ./data/certbot/etc:/etc/letsencrypt:ro
+            - /etc/localtime:/etc/localtime:ro
+
+    # LET'S ENCRYPT CERTBOT
+    mail-certbot:
+        image: certbot/dns-cloudflare:latest
+        container_name: mail-certbot
+        hostname: mail-certbot
+        restart: unless-stopped
+        env_file:
+            - .env
+            - secrets.env
+        entrypoint: ["/bin/sh", "/certbot-entrypoint.sh"]
+        volumes:
+            - ./certbot-entrypoint.sh:/certbot-entrypoint.sh:ro
+            - ./data/certbot/etc:/etc/letsencrypt

@@ -1,0 +1,29 @@
+# ServerPi Services - Mail Client Compose File
+# Prepared by Samyar Sadat Akhavi, 2026. 
+
+services:
+    # WEBMAIL CLIENT
+    roundcube:
+        image: roundcube/roundcubemail:1.7-apache
+        container_name: roundcube
+        hostname: roundcube
+        restart: unless-stopped
+        depends_on:
+            - mailserver
+        env_file:
+            - .env
+            - secrets.env
+        extra_hosts:
+            - "${MAIL_HOST}:${SVPI2_IP_ADDR}"
+        volumes:
+            - ./data/db:/var/roundcube/db
+            - ./data/config:/var/www/html/config
+            - ./data/temp:/tmp/roundcube-temp
+            - ./roundcube_conf.inc.php:/var/www/html/config/custom.inc.php:ro
+        expose:
+            - "80"
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

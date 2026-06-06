@@ -24,3 +24,10 @@ http://two-whoami.{$MY_DOMAIN} {
     import log_common
     reverse_proxy whoami:80
 }
+
+http://webmail.{$MY_DOMAIN} {
+    import log_common
+    reverse_proxy roundcube:80 {
+        header_up X-Forwarded-Proto https
+    }
+}
