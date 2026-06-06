@@ -17,6 +17,7 @@ services:
             - ./Caddyfile:/etc/caddy/Caddyfile
             - ./caddy_config:/config
             - ./caddy_data:/data
+            - ./mta-sts:/srv/mta-sts:ro
 
     # LOG AGENT FOR PUSHING LOGS TO LOKI
     promtail:

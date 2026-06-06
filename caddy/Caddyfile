@@ -47,11 +47,34 @@
 }
 
 
+# MTA-STS policy hosts for mail
+mta-sts.gigawhat.net {
+    import log_common
+    import cf_only
+    
+    root * /srv/mta-sts/gigawhat.net
+    @policy path /.well-known/mta-sts.txt
+    handle @policy {
+        file_server
+    }
+    
+    handle {
+        respond "Not found" 404
+    }
+}
+
+
 # ServerPi-Two routes
 two-whoami.{$MY_DOMAIN} {
     import log_common
     import cf_only
     import secure *
+    reverse_proxy {$SVPI2_IP_ADDR}:80
+}
+
+webmail.{$MY_DOMAIN} {
+    import log_common
+    import cf_only
     reverse_proxy {$SVPI2_IP_ADDR}:80
 }
 
