@@ -8,8 +8,6 @@ services:
         container_name: roundcube
         hostname: roundcube
         restart: unless-stopped
-        depends_on:
-            - mailserver
         env_file:
             - .env
             - secrets.env
