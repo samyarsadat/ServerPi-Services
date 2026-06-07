@@ -38,4 +38,6 @@ volumes:
 
 networks:
     internal-net:
-        subnet: 172.20.0.0/24
+        ipam:
+            config:
+                - subnet: 172.20.0.0/24
