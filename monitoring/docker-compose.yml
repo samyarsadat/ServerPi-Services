@@ -79,7 +79,7 @@ services:
             - /var/lib/docker:/var/lib/docker:ro
             - /cgroup:/cgroup:ro
         expose:
-            - "3000"
+            - "8080"
         labels:
             org.label-schema.group: "monitoring"
 
