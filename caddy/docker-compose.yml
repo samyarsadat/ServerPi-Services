@@ -15,6 +15,9 @@ services:
             - ./Caddyfile:/etc/caddy/Caddyfile
             - ./caddy_config:/config
             - ./caddy_data:/data
+        networks:
+            default:
+                ipv4_address: 172.30.0.2
 
     # LOG AGENT FOR PUSHING LOGS TO LOKI
     promtail:

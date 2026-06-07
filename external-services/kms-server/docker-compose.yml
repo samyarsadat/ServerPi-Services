@@ -10,7 +10,8 @@ services:
         volumes:
             - data:/kms/var
         networks:
-            - internal_net
+            internal-net:
+                ipv4_address: 172.20.0.2
 
     kms-server-gui:
         image: 11notes/kms-gui:1.0.3
@@ -29,10 +30,12 @@ services:
         volumes:
             - data:/kms/var
         networks:
-            - internal_net
+            internal-net:
+                ipv4_address: 172.20.0.3
 
 volumes:
     data:
 
 networks:
-    internal_net:
+    internal-net:
+        subnet: 172.20.0.0/24

@@ -19,7 +19,7 @@ services:
             - ./data/temp:/tmp/roundcube-temp
             - ./roundcube_conf.inc.php:/var/www/html/config/custom.inc.php:ro
         expose:
-            - "80"
+            - 80
 
 networks:
     default:
