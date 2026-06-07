@@ -43,10 +43,11 @@ services:
             - ./wordpress:/var/www/html
             - ./nginx-conf:/etc/nginx/conf.d
         networks:
-            - $DOCKER_MY_NETWORK
+            - default
             - internal-net
 
 networks:
     internal-net:
-    caddy-net:
+    default:
+        name: $DOCKER_MY_NETWORK
         external: true
