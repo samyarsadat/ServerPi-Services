@@ -22,7 +22,7 @@ services:
             - ./prometheus_data:/prometheus
             - ./prometheus.yml:/etc/prometheus/prometheus.yml
         expose:
-            - "9090"
+            - 9090
         labels:
             org.label-schema.group: "monitoring"
 
@@ -39,7 +39,7 @@ services:
         volumes:
             - ./grafana_data:/var/lib/grafana
         expose:
-            - "3000"
+            - 3000
         labels:
             org.label-schema.group: "monitoring"
 
@@ -59,7 +59,7 @@ services:
             - /sys:/host/sys:ro
             - /:/rootfs:ro
         expose:
-            - "9100"
+            - 9100
         labels:
             org.label-schema.group: "monitoring"
 
@@ -79,7 +79,7 @@ services:
             - /var/lib/docker:/var/lib/docker:ro
             - /cgroup:/cgroup:ro
         expose:
-            - "8080"
+            - 8080
         labels:
             org.label-schema.group: "monitoring"
 
@@ -96,7 +96,7 @@ services:
         command:
             - '-config.file=/etc/loki-config.yml'
         ports:
-            - "3100:3100"
+            - 3100:3100
         labels:
             org.label-schema.group: "monitoring"
 

@@ -11,8 +11,8 @@ services:
         restart: unless-stopped
         networks:
             default:
-                ipv4_address: 172.20.0.3
-            wireguard_net:
+                ipv4_address: 172.30.0.3
+            wireguard-net:
                 ipv4_address: 10.42.42.42
                 ipv6_address: fdcc:ad94:bacf:61a3::2a
         cap_add:
@@ -34,7 +34,7 @@ networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
-    wireguard_net:
+    wireguard-net:
         driver: bridge
         enable_ipv6: true
         ipam:
