@@ -22,8 +22,10 @@ services:
             kms-server:
                 condition: service_healthy
                 restart: true
+        environment:
+            - PORT=3688
         ports:
-            - 3688:3000/tcp
+            - 3688:3688/tcp
         volumes:
             - data:/kms/var
         networks:
