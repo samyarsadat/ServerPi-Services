@@ -9,7 +9,6 @@
 /services/docker-registry/auth
 /services/docker-registry/data
 /services/vpn-server/wireguard
-/services/vpn-server/exporter_name_mappings.toml
 /services/vscode-server/config
 /monitoring/prometheus_data
 /monitoring/grafana_data
