@@ -10,9 +10,7 @@ services:
         env_file: .env
         ports:
             - "80:80"
-            - "443:443"
-            - "443:443/udp"
-            - "2019:2019"
+            - "9180:9180"
         volumes:
             - ./Caddyfile:/etc/caddy/Caddyfile
             - ./caddy_config:/config

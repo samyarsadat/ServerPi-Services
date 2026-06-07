@@ -12,7 +12,7 @@ services:
             - .env
             - secrets.env
         extra_hosts:
-            - "${MAIL_HOST}:${SVPI2_IP_ADDR}"
+            - "${MAIL_HOST}:${HOST_IP_ADDR}"
         volumes:
             - ./data/db:/var/roundcube/db
             - ./data/config:/var/www/html/config
