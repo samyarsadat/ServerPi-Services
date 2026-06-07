@@ -22,6 +22,8 @@ services:
             - ./data/dms/mail-state:/var/mail-state
             - ./data/dms/mail-logs:/var/log/mail
             - ./data/dms/config:/tmp/docker-mailserver
+            - ./user-patches.sh:/tmp/docker-mailserver/user-patches.sh:ro
+            - ./postfix-main.cf:/tmp/docker-mailserver/postfix-main.cf:ro
             - ./data/certbot/etc:/etc/letsencrypt:ro
             - /etc/localtime:/etc/localtime:ro
 
