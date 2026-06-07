@@ -11,6 +11,7 @@ services:
         restart: unless-stopped
         networks:
             default:
+                ipv4_address: 172.20.0.3
             wireguard_net:
                 ipv4_address: 10.42.42.42
                 ipv6_address: fdcc:ad94:bacf:61a3::2a

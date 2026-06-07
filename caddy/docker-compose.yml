@@ -17,6 +17,9 @@ services:
             - ./caddy_config:/config
             - ./caddy_data:/data
             - ./mta-sts:/srv/mta-sts:ro
+        networks:
+            default:
+                ipv4_address: 172.20.0.2
 
     # LOG AGENT FOR PUSHING LOGS TO LOKI
     promtail:
