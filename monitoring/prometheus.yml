@@ -17,7 +17,10 @@ scrape_configs:
           - targets: ["localhost:9090"]
     - job_name: "caddy"
       static_configs:
-          - targets: ["caddy:2019"]
+          - targets: ["caddy:9180"]
+    - job_name: "caddy_svpi2"
+      static_configs:
+          - targets: ["192.168.1.115:9180"]
     - job_name: "docker-registry"
       static_configs:
           - targets: ["docker-registry:5001"]

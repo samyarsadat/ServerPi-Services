@@ -10,7 +10,12 @@
         metrics
     }
 
-    admin 0.0.0.0:2019
+    admin localhost:2019
+}
+
+# Metrics endpoint port
+:9180 { 
+    metrics /metrics
 }
 
 # Deny requests that do not originate from Cloudflare
