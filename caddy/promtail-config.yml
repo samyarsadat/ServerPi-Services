@@ -22,6 +22,6 @@ scrape_configs:
                 source: "request_remote_ip"
                 db_type: "city"
           - geoip:
-                db: "etc/GeoLite2-ASN.mmdb"
+                db: "/etc/GeoLite2-ASN.mmdb"
                 source: "request_remote_ip"
                 db_type: "asn"

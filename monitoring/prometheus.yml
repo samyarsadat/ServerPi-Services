@@ -25,5 +25,6 @@ scrape_configs:
       static_configs:
           - targets: ["docker-registry:5001"]
     - job_name: "wireguard"
+      metrics_path: /metrics/prometheus
       static_configs:
-          - targets: ["wireguard-server:9586"]
+          - targets: ["wireguard-server:51821"]

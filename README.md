@@ -10,7 +10,9 @@
 <br>
 
 ----
-This repository contains Docker Compose and other configuration files for services and tools I self-host on a Raspberry Pi 4B (4GB). I have been hosting these services for almost a year now and have finally decided to make this repository public.
+This repository contains Docker Compose and other configuration files for services and tools I self-host on two Raspberry Pi 4Bs (4GB and 8GB).
+
+The services and servers hosted on the second Raspberry Pi can be found on the `server-pi-two` branch.
 
 I've taken inspiration and learnt from many other repositories and tutorials, but I have listed all of my main sources [below](#sources--tutorials). Note that this is most likely not an exhaustive list, as I did most of my research last year and have since forgotten a lot.
 
