@@ -3,7 +3,7 @@
 
 services:
     excalidraw:
-        image: samyarsadat/service_images:excalidraw-arm64-latest
+        image: excalidraw/excalidraw:latest
         container_name: excalidraw-web
         hostname: excalidraw-web
         restart: unless-stopped
