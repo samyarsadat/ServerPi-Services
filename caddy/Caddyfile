@@ -142,20 +142,6 @@ whoami.{$MY_DOMAIN} {
     reverse_proxy whoami:80
 }
 
-docker-reg.{$MY_DOMAIN} {
-    import log_common
-    import cf_only
-    # import secure *
-    reverse_proxy docker-registry:5000
-}
-
-code.{$MY_DOMAIN} {
-    import log_common
-    import cf_only
-    import secure *
-    reverse_proxy vscode-server:8443
-}
-
 lanwatch.{$MY_DOMAIN} {
     import log_common
     import cf_only
