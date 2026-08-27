@@ -10,7 +10,10 @@ services:
         env_file: .env
         restart: unless-stopped
         volumes:
-            - ./data:/data
+            - data:/data
+
+volumes:
+    data:
 
 # No networks defined here, as this service is using host networking mode.
 # The Docker host's IP address and container port should be used in Caddy.

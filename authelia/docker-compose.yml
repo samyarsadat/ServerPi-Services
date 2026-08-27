@@ -26,7 +26,7 @@ services:
         env_file:
             - .env
         volumes:
-            - ./postgres:/var/lib/postgresql
+            - postgres:/var/lib/postgresql
             - ./config/secrets/STORAGE_PASSWORD:/STORAGE_PASSWORD:ro
 
     # REDIS CACHE FOR AUTHELIA
@@ -39,7 +39,7 @@ services:
             - .env
         entrypoint: ["/bin/sh", "/redis-entry.sh"]
         volumes:
-            - ./redis:/data
+            - redis:/data
             - ./redis-entry.sh:/redis-entry.sh
             - ./config/secrets/REDIS_PASSWORD:/REDIS_PASSWORD:ro
 
@@ -47,3 +47,7 @@ networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
+
+volumes:
+    postgres:
+    redis:

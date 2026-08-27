@@ -14,7 +14,7 @@ services:
             - --storage.tsdb.retention.time=240h
             - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-10GB}
         volumes:
-            - ./prometheus_data:/prometheus
+            - prometheus_data:/prometheus
             - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
         extra_hosts:
             server-pi-two: ${SVPI2_IP_ADDR}
@@ -31,7 +31,7 @@ services:
             - .env
             - secrets.env
         volumes:
-            - ./grafana_data:/var/lib/grafana
+            - grafana_data:/var/lib/grafana
             - ./provisioning:/etc/grafana/provisioning:ro
             - ./dashboards:/var/lib/grafana/dashboards:ro
         labels:
@@ -82,7 +82,7 @@ services:
         hostname: loki
         restart: unless-stopped
         volumes:
-            - ./loki_data:/loki
+            - loki_data:/loki
             - ./loki-config.yml:/etc/loki-config.yml:ro
         command:
             - -config.file=/etc/loki-config.yml
@@ -93,3 +93,8 @@ networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
+
+volumes:
+    prometheus_data:
+    grafana_data:
+    loki_data:

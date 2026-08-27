@@ -11,18 +11,30 @@ services:
             - .env
             - secrets.env
         ports:
-            - "80:80"
-            - "443:443"
-            - "443:443/udp"
-            - "3100:3100"
+            - 80:80
+            - 443:443
+            - 443:443/udp
+            - 3100:3100
         volumes:
             - ./Caddyfile:/etc/caddy/Caddyfile:ro
-            - ./caddy_config:/config
-            - ./caddy_data:/data
             - ./mta-sts:/srv/mta-sts:ro
+            - caddy_config:/config
+            - caddy_data:/data
         networks:
             default:
                 ipv4_address: 172.30.0.100
+
+    # AUTOMATIC MAXMIND GEOIP DATABASE UPDATER
+    geoip-updater:
+        image: ghcr.io/maxmind/geoipupdate:v8.0.0
+        container_name: caddy-geoip-updater
+        hostname: caddy-geoip-updater
+        restart: unless-stopped
+        env_file:
+            - .env
+            - secrets.env
+        volumes:
+            - geoip_databases:/usr/share/GeoIP
 
     # LOG AGENT FOR PUSHING LOGS TO LOKI
     alloy:
@@ -37,9 +49,9 @@ services:
                 condition: service_healthy
         volumes:
             - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
-            - ./caddy_data/logs:/var/log/caddy:ro
-            - ./geoip_databases:/etc/geoip:ro
-            - ./alloy_data:/var/lib/alloy/data
+            - caddy_data/logs:/var/log/caddy:ro
+            - geoip_databases:/etc/geoip:ro
+            - alloy_data:/var/lib/alloy/data
         command:
             - run
             - --server.http.listen-addr=0.0.0.0:12345
@@ -47,19 +59,13 @@ services:
             - --disable-reporting
             - /etc/alloy/config.alloy
 
-    # AUTOMATIC MAXMIND GEOIP DATABASE UPDATER
-    geoip-updater:
-        image: ghcr.io/maxmind/geoipupdate:v8.0.0
-        container_name: caddy-geoip-updater
-        hostname: caddy-geoip-updater
-        restart: unless-stopped
-        env_file:
-            - .env
-            - secrets.env
-        volumes:
-            - ./geoip_databases:/usr/share/GeoIP
-
 networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
+
+volumes:
+    caddy_config:
+    caddy_data:
+    alloy_data:
+    geoip_databases:

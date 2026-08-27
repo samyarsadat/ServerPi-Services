@@ -11,7 +11,7 @@ services:
             - .env
             - database.secrets.env
         volumes:
-            - ./dbdata:/var/lib/mysql
+            - db_data:/var/lib/mysql
         command: "--mysql-native-password=ON"
         networks:
             - internal-net
@@ -27,7 +27,7 @@ services:
             - .env
             - wordpress.secrets.env
         volumes:
-            - ./wordpress:/var/www/html
+            - wordpress:/var/www/html
             - ./wp_php_conf.ini:/usr/local/etc/php/conf.d/php-config.ini:ro
         networks:
             - internal-net
@@ -40,7 +40,7 @@ services:
         depends_on:
             - wordpress
         volumes:
-            - ./wordpress:/var/www/html:ro
+            - wordpress:/var/www/html:ro
             - ./nginx-conf:/etc/nginx/conf.d:ro
         networks:
             - default
@@ -51,3 +51,7 @@ networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
+
+volumes:
+    db_data:
+    wordpress:
