@@ -30,7 +30,7 @@ services:
 
     # LET'S ENCRYPT CERTBOT
     mail-certbot:
-        image: certbot/dns-cloudflare:v4.2.0
+        image: certbot/dns-cloudflare:v5.7.0
         container_name: mail-certbot
         hostname: mail-certbot
         restart: unless-stopped
