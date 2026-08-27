@@ -17,7 +17,7 @@ services:
             - internal-net
 
     wordpress:
-        image: wordpress:6.7-fpm-alpine
+        image: wordpress:6.9-fpm-alpine
         container_name: wordpress-test
         hostname: wordpress-test
         restart: unless-stopped
