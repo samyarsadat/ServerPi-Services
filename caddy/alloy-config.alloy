@@ -1,0 +1,26 @@
+local.file_match "caddy_access_logs" {
+    path_targets = [{
+        "__path__" = "/var/log/caddy/*.log",
+        "job"      = "caddy_access_log",
+        "host"     = "server-pi-two",
+        "agent"    = "caddy-alloy",
+    }]
+    sync_period = "10s"
+}
+
+loki.source.file "caddy_access_logs" {
+    targets       = local.file_match.caddy_access_logs.targets
+    forward_to    = [loki.write.local.receiver]
+    tail_from_end = true
+}
+
+loki.write "local" {
+    endpoint {
+        url = sys.env("LOKI_PUSH_URL")
+
+        basic_auth {
+            username = sys.env("LOKI_BASIC_AUTH_USER")
+            password = sys.env("LOKI_BASIC_AUTH_PASSWORD")
+        }
+    }
+}

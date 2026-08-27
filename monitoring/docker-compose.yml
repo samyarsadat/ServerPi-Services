@@ -1,0 +1,46 @@
+# ServerPi Services - Monitoring Publishers for ServerPi-Two
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
+
+services:
+    node-exporter:
+        image: prom/node-exporter:v1.12.1
+        container_name: node-exporter
+        hostname: node-exporter
+        env_file: .env
+        restart: unless-stopped
+        command:
+            - --path.procfs=/host/proc
+            - --path.rootfs=/rootfs
+            - --path.sysfs=/host/sys
+            - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        labels:
+            org.label-schema.group: monitoring
+
+    cadvisor:
+        image: gcr.io/cadvisor/cadvisor:v0.55.1
+        container_name: cadvisor
+        hostname: cadvisor
+        env_file: .env
+        restart: unless-stopped
+        privileged: true
+        devices:
+            - /dev/kmsg:/dev/kmsg
+        command:
+            - --docker_only=true
+            - --housekeeping_interval=30s
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:ro
+            - /sys:/sys:ro
+            - /var/lib/docker:/var/lib/docker:ro
+        labels:
+            org.label-schema.group: monitoring
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true

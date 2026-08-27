@@ -4,7 +4,7 @@
 services:
     # MAIL SERVER (SMTP/IMAP)
     mailserver:
-        image: ghcr.io/docker-mailserver/docker-mailserver:15
+        image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
         container_name: mailserver
         hostname: mailserver
         restart: unless-stopped
@@ -12,11 +12,12 @@ services:
         network_mode: host
         env_file:
             - .env
-            - secrets.env
+            - mailserver.secrets.env
         cap_add:
             - NET_ADMIN
         depends_on:
-            - mail-certbot
+            mail-certbot:
+                condition: service_healthy
         volumes:
             - ./data/dms/mail-data:/var/mail
             - ./data/dms/mail-state:/var/mail-state
@@ -29,14 +30,33 @@ services:
 
     # LET'S ENCRYPT CERTBOT
     mail-certbot:
-        image: certbot/dns-cloudflare:latest
+        image: certbot/dns-cloudflare:v4.2.0
         container_name: mail-certbot
         hostname: mail-certbot
         restart: unless-stopped
         env_file:
             - .env
-            - secrets.env
+            - certbot.secrets.env
         entrypoint: ["/bin/sh", "/certbot-entrypoint.sh"]
         volumes:
             - ./certbot-entrypoint.sh:/certbot-entrypoint.sh:ro
             - ./data/certbot/etc:/etc/letsencrypt
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - >-
+                    cert="/etc/letsencrypt/live/$${CERT_DOMAIN}/fullchain.pem";
+                    key="/etc/letsencrypt/live/$${CERT_DOMAIN}/privkey.pem";
+                    test -s "$$cert" &&
+                    test -s "$$key" &&
+                    openssl x509 -in "$$cert" -noout -checkend 0 &&
+                    openssl x509 -in "$$cert" -noout -checkhost "$${CERT_DOMAIN}" &&
+                    openssl pkey -in "$$key" -noout -check >/dev/null 2>&1 &&
+                    cert_public="$$(openssl x509 -in "$$cert" -pubkey -noout)" &&
+                    key_public="$$(openssl pkey -in "$$key" -pubout 2>/dev/null)" &&
+                    test "$$cert_public" = "$$key_public"
+            start_interval: 5s
+            start_period: 5m
+            interval: 10m
+            timeout: 10s
+            retries: 5

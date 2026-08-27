@@ -1,16 +1,25 @@
 #!/bin/sh
-# ServerPi Services - certbot renewal loop for docker-mailserver's TLS cert.
-# Obtains/renews mail.ssa-selfhosted.com via Cloudflare DNS-01.
+set -eu
 
+credentials=/tmp/cf.ini
 umask 077
-echo "dns_cloudflare_api_token = ${CF_DNS_API_TOKEN}" > /tmp/cf.ini
+printf 'dns_cloudflare_api_token = %s\n' "${CF_DNS_API_TOKEN}" > "$credentials"
 
-trap exit TERM
+cleanup() {
+    rm -f "$credentials"
+}
+trap 'cleanup; exit 0' INT TERM
+trap cleanup EXIT
+
 while :; do
-    certbot certonly --non-interactive --agree-tos --keep-until-expiring --reuse-key \
+    if certbot certonly --non-interactive --agree-tos --keep-until-expiring --reuse-key \
         --email "${CERTBOT_EMAIL}" \
-        --dns-cloudflare --dns-cloudflare-credentials /tmp/cf.ini \
+        --dns-cloudflare --dns-cloudflare-credentials "$credentials" \
         --dns-cloudflare-propagation-seconds 30 \
-        -d "${CERT_DOMAIN}"
-    sleep 43200   # re-check every 12h
+        -d "${CERT_DOMAIN}"; then
+        sleep 43200
+    else
+        echo "Certificate issuance failed; retrying in five minutes." >&2
+        sleep 300
+    fi
 done
