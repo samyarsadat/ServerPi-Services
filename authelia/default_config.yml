@@ -29,7 +29,7 @@ session:
     cookies:
         - domain: ssa-selfhosted.com
           authelia_url: https://auth.ssa-selfhosted.com
-          default_redirection_url: https://auth.ssa-selfhosted.com/
+          default_redirection_url: https://ssa-selfhosted.com/
           name: authelia_session
           same_site: lax
           inactivity: 5m
@@ -57,4 +57,4 @@ notifier:
     smtp:
         address: submission://in-v3.mailjet.com:587
         username: [MAILJET_API_USERNAME]
-        sender: "Authelia <authelia@ssa-selfhosted.com>"
+        sender: Authelia <authelia@ssa-selfhosted.com>

@@ -3,7 +3,8 @@ providers:
     - name: ServerPi
       type: file
       folder: ServerPi
-      allowUiUpdates: true
+      allowUiUpdates: false
+      updateIntervalSeconds: 30
       options:
           path: /var/lib/grafana/dashboards
           foldersFromFilesStructure: false

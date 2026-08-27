@@ -1,0 +1,235 @@
+apiVersion: 1
+
+contactPoints:
+    - orgId: 1
+      name: serverpi-email
+      receivers:
+          - uid: serverpi_email
+            type: email
+            settings:
+                addresses: ${GRAFANA_ALERT_EMAIL}
+                singleEmail: true
+
+policies:
+    - orgId: 1
+      receiver: serverpi-email
+      group_by: [grafana_folder, alertname]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+
+groups:
+    - orgId: 1
+      name: serverpi-infrastructure
+      folder: ServerPi Alerts
+      interval: 1m
+      rules:
+          - uid: serverpi_target_down
+            title: Monitoring target is down
+            condition: B
+            data:
+                - refId: A
+                  datasourceUid: yFPhw6sIz
+                  relativeTimeRange: {from: 600, to: 0}
+                  model:
+                      editorMode: code
+                      expr: up == bool 0
+                      instant: true
+                      intervalMs: 1000
+                      legendFormat: "{{instance}}"
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                - refId: B
+                  datasourceUid: __expr__
+                  model:
+                      datasource: {type: __expr__, uid: __expr__}
+                      expression: $A > 0
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: B
+                      type: math
+            noDataState: NoData
+            executionErrorState: Error
+            for: 5m
+            annotations:
+                summary: "Target {{ $labels.job }} on {{ $labels.instance }} is down"
+                description: "Prometheus has been unable to scrape {{ $labels.instance }} for five minutes."
+            labels:
+                severity: critical
+            isPaused: false
+
+          - uid: serverpi_disk_low
+            title: Root filesystem space is low
+            condition: B
+            data:
+                - refId: A
+                  datasourceUid: yFPhw6sIz
+                  relativeTimeRange: {from: 600, to: 0}
+                  model:
+                      editorMode: code
+                      expr: 100 * node_filesystem_avail_bytes{mountpoint="/",fstype!=""} / node_filesystem_size_bytes{mountpoint="/",fstype!=""} < bool 10
+                      instant: true
+                      intervalMs: 1000
+                      legendFormat: "{{instance}}"
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                - refId: B
+                  datasourceUid: __expr__
+                  model:
+                      datasource: {type: __expr__, uid: __expr__}
+                      expression: $A > 0
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: B
+                      type: math
+            noDataState: NoData
+            executionErrorState: Error
+            for: 10m
+            annotations:
+                summary: "Root filesystem space is low on {{ $labels.instance }}"
+                description: "Root filesystem free space on {{ $labels.instance }} has remained below 10%."
+            labels:
+                severity: critical
+            isPaused: false
+
+          - uid: serverpi_memory_low
+            title: Available host memory is low
+            condition: B
+            data:
+                - refId: A
+                  datasourceUid: yFPhw6sIz
+                  relativeTimeRange: {from: 600, to: 0}
+                  model:
+                      editorMode: code
+                      expr: 100 * node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < bool 10
+                      instant: true
+                      intervalMs: 1000
+                      legendFormat: "{{instance}}"
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                - refId: B
+                  datasourceUid: __expr__
+                  model:
+                      datasource: {type: __expr__, uid: __expr__}
+                      expression: $A > 0
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: B
+                      type: math
+            noDataState: NoData
+            executionErrorState: Error
+            for: 10m
+            annotations:
+                summary: "Available memory is low on {{ $labels.instance }}"
+                description: "Available memory on {{ $labels.instance }} has remained below 10%."
+            labels:
+                severity: warning
+            isPaused: false
+
+          - uid: serverpi_cpu_high
+            title: Host CPU usage is high
+            condition: B
+            data:
+                - refId: A
+                  datasourceUid: yFPhw6sIz
+                  relativeTimeRange: {from: 600, to: 0}
+                  model:
+                      editorMode: code
+                      expr: 100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > bool 90
+                      instant: true
+                      intervalMs: 1000
+                      legendFormat: "{{instance}}"
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                - refId: B
+                  datasourceUid: __expr__
+                  model:
+                      datasource: {type: __expr__, uid: __expr__}
+                      expression: $A > 0
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: B
+                      type: math
+            noDataState: NoData
+            executionErrorState: Error
+            for: 15m
+            annotations:
+                summary: "CPU usage is high on {{ $labels.instance }}"
+                description: "CPU usage on {{ $labels.instance }} has remained above 90%."
+            labels:
+                severity: warning
+            isPaused: false
+
+          - uid: serverpi_prom_reload_failed
+            title: Prometheus configuration reload failed
+            condition: B
+            data:
+                - refId: A
+                  datasourceUid: yFPhw6sIz
+                  relativeTimeRange: {from: 600, to: 0}
+                  model:
+                      editorMode: code
+                      expr: prometheus_config_last_reload_successful == bool 0
+                      instant: true
+                      intervalMs: 1000
+                      legendFormat: "{{instance}}"
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                - refId: B
+                  datasourceUid: __expr__
+                  model:
+                      datasource: {type: __expr__, uid: __expr__}
+                      expression: $A > 0
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: B
+                      type: math
+            noDataState: NoData
+            executionErrorState: Error
+            for: 5m
+            annotations:
+                summary: "Prometheus configuration reload failed on {{ $labels.instance }}"
+                description: "Prometheus on {{ $labels.instance }} reports that its most recent configuration reload failed."
+            labels:
+                severity: critical
+            isPaused: false
+
+          - uid: serverpi_loki_errors
+            title: Loki is returning server errors
+            condition: B
+            data:
+                - refId: A
+                  datasourceUid: yFPhw6sIz
+                  relativeTimeRange: {from: 600, to: 0}
+                  model:
+                      editorMode: code
+                      expr: 100 * ((sum by (instance) (rate(loki_request_duration_seconds_count{job="loki",status_code=~"5.."}[5m]))) or (0 * sum by (instance) (rate(loki_request_duration_seconds_count{job="loki"}[5m])))) / clamp_min(sum by (instance) (rate(loki_request_duration_seconds_count{job="loki"}[5m])), 1e-9)
+                      instant: true
+                      intervalMs: 1000
+                      legendFormat: "{{instance}}"
+                      maxDataPoints: 43200
+                      range: false
+                      refId: A
+                - refId: B
+                  datasourceUid: __expr__
+                  model:
+                      datasource: {type: __expr__, uid: __expr__}
+                      expression: $A > 10
+                      intervalMs: 1000
+                      maxDataPoints: 43200
+                      refId: B
+                      type: math
+            noDataState: NoData
+            executionErrorState: Error
+            for: 15m
+            annotations:
+                summary: "Loki 5xx rate is high on {{ $labels.instance }}"
+                description: "More than 10% of Loki requests on {{ $labels.instance }} have returned HTTP 5xx responses for 15 minutes."
+            labels:
+                severity: warning
+            isPaused: false

@@ -1,13 +1,15 @@
 # Global configs
 {
+    metrics
+
     servers {
-        # Add Cloudflare IPv4 and IPv6 addresses to trusted proxies.
+        # Add Cloudflare IPv4 and IPv6 addresses to trusted proxies
         trusted_proxies cloudflare {
             interval 12h
             timeout 15s
         }
 
-        metrics
+        trusted_proxies_strict
     }
 
     admin localhost:2019
@@ -16,6 +18,21 @@
 # Metrics endpoint port
 :9180 { 
     metrics /metrics
+}
+
+# Authenticated ServerPi-Two-only ingestion gateway
+:3100 {
+    @server_pi_two remote_ip {$SVPI2_IP_ADDR}
+
+    handle @server_pi_two {
+        basic_auth {
+            {$LOKI_BASIC_AUTH_USER} {$LOKI_BASIC_AUTH_HASH}
+        }
+
+        reverse_proxy loki:3100
+    }
+
+    respond "Forbidden" 403
 }
 
 # Deny requests that do not originate from Cloudflare
@@ -28,10 +45,9 @@
 
 # Authentication
 (secure) {
-    forward_auth {args.0} https://auth.{$MY_DOMAIN} {
-        uri /api/verify?rd=https://auth.{$MY_DOMAIN}
+    forward_auth authelia:9091 {
+        uri /api/authz/forward-auth
         copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
-        header_up Host {upstream_hostport}
     }
 }
 
@@ -55,16 +71,19 @@
 # MTA-STS policy hosts for mail
 mta-sts.gigawhat.net {
     import log_common
-    import cf_only
     
-    root * /srv/mta-sts/gigawhat.net
-    @policy path /.well-known/mta-sts.txt
-    handle @policy {
-        file_server
-    }
-    
-    handle {
-        respond "Not found" 404
+    route {
+        import cf_only
+        
+        root * /srv/mta-sts/gigawhat.net
+        @policy path /.well-known/mta-sts.txt
+        handle @policy {
+            file_server
+        }
+        
+        handle {
+            respond "Not found" 404
+        }
     }
 }
 
@@ -72,9 +91,12 @@ mta-sts.gigawhat.net {
 # ServerPi-Two routes
 two-whoami.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy {$SVPI2_IP_ADDR}:80
+    
+    route {
+        import cf_only
+        import secure
+        reverse_proxy {$SVPI2_IP_ADDR}:80
+    }
 }
 
 webmail.{$MY_DOMAIN} {
@@ -94,24 +116,33 @@ www.{$MY_DOMAIN} {
 # WireGuard HTTP route
 wireguard.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy wireguard-server:80
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy wireguard-server:80
+    }
 }
 
 # Monitoring
 grafana.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy grafana:3000
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy grafana:3000
+    }
 }
 
 prometheus.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy prometheus:9090
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy prometheus:9090
+    }
 }
 
 # WordPress test
@@ -124,9 +155,12 @@ wp-test.{$MY_DOMAIN} {
 # Proxy routes
 {$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy httpd-hello-world:80
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy httpd-hello-world:80
+    }
 }
 
 auth.{$MY_DOMAIN} {
@@ -137,21 +171,30 @@ auth.{$MY_DOMAIN} {
 
 whoami.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy whoami:80
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy whoami:80
+    }
 }
 
 lanwatch.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy {$HOST_IP_ADDR}:8840
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy {$HOST_IP_ADDR}:8840
+    }
 }
 
 excalidraw.{$MY_DOMAIN} {
     import log_common
-    import cf_only
-    import secure *
-    reverse_proxy excalidraw-web:80
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy excalidraw-web:80
+    }
 }

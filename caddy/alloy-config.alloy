@@ -1,0 +1,73 @@
+local.file_match "caddy_access_logs" {
+    path_targets = [{
+        "__path__" = "/var/log/caddy/*.log",
+        "job"      = "caddy_access_log",
+        "host"     = "server-pi",
+        "agent"    = "caddy-alloy",
+    }]
+    sync_period = "10s"
+}
+
+loki.source.file "caddy_access_logs" {
+    targets       = local.file_match.caddy_access_logs.targets
+    forward_to    = [loki.process.caddy_access_logs.receiver]
+    tail_from_end = true
+}
+
+loki.process "caddy_access_logs" {
+    forward_to = [loki.write.local.receiver]
+
+    stage.json {
+        expressions = {
+            request_client_ip = "request.client_ip",
+            request_remote_ip = "request.remote_ip",
+        }
+    }
+
+    stage.geoip {
+        db      = "/etc/geoip/GeoLite2-ASN.mmdb"
+        source  = "request_remote_ip"
+        db_type = "asn"
+    }
+
+    stage.structured_metadata {
+        values = {
+            request_remote_asn     = "geoip_autonomous_system_number",
+            request_remote_asn_org = "geoip_autonomous_system_organization",
+        }
+    }
+
+    stage.geoip {
+        db      = "/etc/geoip/GeoLite2-City.mmdb"
+        source  = "request_client_ip"
+        db_type = "city"
+    }
+
+    stage.geoip {
+        db      = "/etc/geoip/GeoLite2-ASN.mmdb"
+        source  = "request_client_ip"
+        db_type = "asn"
+    }
+
+    stage.structured_metadata {
+        values = {
+            geoip_autonomous_system_organization = "",
+            geoip_city_name                      = "",
+            geoip_continent_code                 = "",
+            geoip_continent_name                 = "",
+            geoip_country_name                   = "",
+            geoip_location_latitude              = "",
+            geoip_location_longitude             = "",
+            geoip_postal_code                    = "",
+            geoip_subdivision_code               = "",
+            geoip_subdivision_name               = "",
+            geoip_timezone                       = "",
+        }
+    }
+}
+
+loki.write "local" {
+    endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+    }
+}

@@ -1,5 +1,5 @@
 # ServerPi Services - Caddy V2 Compose File
-# Prepared by Samyar Sadat Akhavi, 2024. 
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
 
 services:
     caddy:
@@ -7,13 +7,16 @@ services:
         container_name: caddy
         hostname: caddy
         restart: unless-stopped
-        env_file: .env
+        env_file:
+            - .env
+            - secrets.env
         ports:
             - "80:80"
             - "443:443"
             - "443:443/udp"
+            - "3100:3100"
         volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile
+            - ./Caddyfile:/etc/caddy/Caddyfile:ro
             - ./caddy_config:/config
             - ./caddy_data:/data
             - ./mta-sts:/srv/mta-sts:ro
@@ -22,31 +25,37 @@ services:
                 ipv4_address: 172.30.0.100
 
     # LOG AGENT FOR PUSHING LOGS TO LOKI
-    promtail:
-        image: grafana/promtail:latest
-        container_name: caddy-promtail
-        hostname: caddy-promtail
+    alloy:
+        image: grafana/alloy:v1.18.1
+        container_name: caddy-alloy
+        hostname: caddy-alloy
         restart: unless-stopped
         depends_on:
-            - caddy
-            - geoip-updater
+            caddy:
+                condition: service_started
+            geoip-updater:
+                condition: service_healthy
         volumes:
-            - ./promtail-config.yml:/etc/promtail-config.yml
+            - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
             - ./caddy_data/logs:/var/log/caddy:ro
-            - ./geoip_databases/GeoLite2-City.mmdb:/etc/GeoLite2-City.mmdb:ro
-            - ./geoip_databases/GeoLite2-ASN.mmdb:/etc/GeoLite2-ASN.mmdb:ro
+            - ./geoip_databases:/etc/geoip:ro
+            - ./alloy_data:/var/lib/alloy/data
         command:
-            - '-config.file=/etc/promtail-config.yml'
+            - run
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --storage.path=/var/lib/alloy/data
+            - --disable-reporting
+            - /etc/alloy/config.alloy
 
     # AUTOMATIC MAXMIND GEOIP DATABASE UPDATER
     geoip-updater:
-        image: ghcr.io/maxmind/geoipupdate:latest
+        image: ghcr.io/maxmind/geoipupdate:v8.0.0
         container_name: caddy-geoip-updater
         hostname: caddy-geoip-updater
+        restart: unless-stopped
         env_file:
             - .env
             - secrets.env
-        restart: unless-stopped
         volumes:
             - ./geoip_databases:/usr/share/GeoIP
 

@@ -1,27 +1,59 @@
 # ServerPi Services - Prometheus Config File
-# Prepared by Samyar Sadat Akhavi, 2024. 
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
 
 global:
     scrape_interval: 15s
     evaluation_interval: 15s
 
 scrape_configs:
-    - job_name: "nodeexporter"
+    - job_name: nodeexporter
       static_configs:
-          - targets: ["node-exporter:9100"]
-    - job_name: "cadvisor"
+          - {targets: ["node-exporter:9100"], labels: {host: "server-pi"}}
+
+    - job_name: cadvisor
       static_configs:
-          - targets: ["cadvisor:8080"]
-    - job_name: "prometheus"
+          - {targets: ["cadvisor:8080"], labels: {host: "server-pi"}}
+
+    - job_name: prometheus
       static_configs:
           - targets: ["localhost:9090"]
-    - job_name: "caddy"
+
+    - job_name: grafana
+      static_configs:
+          - targets: ["grafana:3000"]
+
+    - job_name: loki
+      static_configs:
+          - targets: ["loki:3100"]
+
+    - job_name: caddy
       static_configs:
           - targets: ["caddy:9180"]
-    - job_name: "caddy_svpi2"
+
+    - job_name: alloy
       static_configs:
-          - targets: ["192.168.1.115:9180"]
-    - job_name: "wireguard"
+          - targets: ["caddy-alloy:12345"]
+
+    - job_name: wireguard
       metrics_path: /metrics/prometheus
       static_configs:
-          - targets: ["wireguard-server:51821"]
+          - targets: ["wireguard-server:80"]
+
+    - job_name: nodeexporter_svpi2
+      metrics_path: /node-metrics
+      static_configs:
+          - {targets: ["server-pi-two:9180"], labels: {host: "server-pi-two"}}
+
+    - job_name: cadvisor_svpi2
+      metrics_path: /cadvisor-metrics
+      static_configs:
+          - {targets: ["server-pi-two:9180"], labels: {host: "server-pi-two"}}
+
+    - job_name: caddy_svpi2
+      static_configs:
+          - targets: ["server-pi-two:9180"]
+
+    - job_name: alloy_svpi2
+      metrics_path: /alloy-metrics
+      static_configs:
+          - targets: ["server-pi-two:9180"]

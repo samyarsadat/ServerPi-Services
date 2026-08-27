@@ -1,9 +1,9 @@
 # ServerPi Services - WireGuard VPN Server Compose File
-# Prepared by Samyar Sadat Akhavi, 2024. 
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
 
 services:
     wireguard:
-        image: ghcr.io/wg-easy/wg-easy:15
+        image: ghcr.io/wg-easy/wg-easy:15.4.0
         container_name: wireguard-server
         hostname: wireguard-server
         env_file:

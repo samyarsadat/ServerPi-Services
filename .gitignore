@@ -6,10 +6,8 @@
 /caddy/caddy_config
 /caddy/caddy_data
 /caddy/geoip_databases
-/services/docker-registry/auth
-/services/docker-registry/data
+/caddy/alloy_data
 /services/vpn-server/wireguard
-/services/vscode-server/config
 /monitoring/prometheus_data
 /monitoring/grafana_data
 /monitoring/loki_data
@@ -20,3 +18,4 @@
 /sites/wordpress-test/certbot-etc
 /sites/wordpress-test/wordpress
 **/secrets.env
+**/*.secrets.env

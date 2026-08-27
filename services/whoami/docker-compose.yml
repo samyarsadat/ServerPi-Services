@@ -1,11 +1,11 @@
 # ServerPi Services - Whomai Compose File
-# Prepared by Samyar Sadat Akhavi, 2024. 
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
 
 services:
     whoami:
-        image: "traefik/whoami"
-        container_name: "whoami"
-        hostname: "whoami"
+        image: traefik/whoami:v1.12
+        container_name: whoami
+        hostname: whoami
         env_file: .env
         restart: unless-stopped
 

@@ -1,106 +1,93 @@
 # ServerPi Services - Monitoring Services Compose File
-# Prepared by Samyar Sadat Akhavi, 2024. 
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
 
 services:
     # MONITORING SYSTEM AND THE METRICS DATABASE
     prometheus:
-        image: prom/prometheus:v3
+        image: prom/prometheus:v3.14.0
         container_name: prometheus
         hostname: prometheus
-        user: root
         restart: unless-stopped
-        depends_on:
-            - cadvisor
         command:
-            - '--config.file=/etc/prometheus/prometheus.yml'
-            - '--storage.tsdb.path=/prometheus'
-            - '--web.console.libraries=/etc/prometheus/console_libraries'
-            - '--web.console.templates=/etc/prometheus/consoles'
-            - '--storage.tsdb.retention.time=240h'
-            - '--web.enable-lifecycle'
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time=240h
+            - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-10GB}
         volumes:
             - ./prometheus_data:/prometheus
-            - ./prometheus.yml:/etc/prometheus/prometheus.yml
-        expose:
-            - 9090
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+        extra_hosts:
+            server-pi-two: ${SVPI2_IP_ADDR}
         labels:
-            org.label-schema.group: "monitoring"
+            org.label-schema.group: monitoring
 
     # WEB BASED UI VISUALISATION OF METRICS
     grafana:
-        image: grafana/grafana:latest
+        image: grafana/grafana:13.2.0
         container_name: grafana
         hostname: grafana
-        user: root
         restart: unless-stopped
         env_file:
             - .env
             - secrets.env
         volumes:
             - ./grafana_data:/var/lib/grafana
-            - ./provisioning:/etc/grafana/provisioning
+            - ./provisioning:/etc/grafana/provisioning:ro
             - ./dashboards:/var/lib/grafana/dashboards:ro
-        expose:
-            - 3000
         labels:
-            org.label-schema.group: "monitoring"
+            org.label-schema.group: monitoring
 
     # HOST LINUX MACHINE METRICS EXPORTER
     node-exporter:
-        image: prom/node-exporter:v1
+        image: prom/node-exporter:v1.12.1
         container_name: node-exporter
         hostname: node-exporter
         restart: unless-stopped
         command:
-            - '--path.procfs=/host/proc'
-            - '--path.rootfs=/rootfs'
-            - '--path.sysfs=/host/sys'
-            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+            - --path.procfs=/host/proc
+            - --path.rootfs=/rootfs
+            - --path.sysfs=/host/sys
+            - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
         volumes:
             - /proc:/host/proc:ro
             - /sys:/host/sys:ro
             - /:/rootfs:ro
-        expose:
-            - 9100
         labels:
-            org.label-schema.group: "monitoring"
+            org.label-schema.group: monitoring
 
     # DOCKER CONTAINERS METRICS EXPORTER
     cadvisor:
-        image: gcr.io/cadvisor/cadvisor:latest
+        image: gcr.io/cadvisor/cadvisor:v0.55.1
         container_name: cadvisor
         hostname: cadvisor
         restart: unless-stopped
         privileged: true
         devices:
             - /dev/kmsg:/dev/kmsg
+        command:
+            - --docker_only=true
+            - --housekeeping_interval=30s
         volumes:
             - /:/rootfs:ro
             - /var/run:/var/run:ro
             - /sys:/sys:ro
             - /var/lib/docker:/var/lib/docker:ro
-            - /cgroup:/cgroup:ro
-        expose:
-            - 8080
         labels:
-            org.label-schema.group: "monitoring"
+            org.label-schema.group: monitoring
 
     # LOG MANAGEMENT WITH LOKI
     loki:
-        image: grafana/loki:3
+        image: grafana/loki:3.7.6
         container_name: loki
         hostname: loki
-        user: root
         restart: unless-stopped
         volumes:
             - ./loki_data:/loki
-            - ./loki-config.yml:/etc/loki-config.yml
+            - ./loki-config.yml:/etc/loki-config.yml:ro
         command:
-            - '-config.file=/etc/loki-config.yml'
-        ports:
-            - 3100:3100
+            - -config.file=/etc/loki-config.yml
         labels:
-            org.label-schema.group: "monitoring"
+            org.label-schema.group: monitoring
 
 networks:
     default:

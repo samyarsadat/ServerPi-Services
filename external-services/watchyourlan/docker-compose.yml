@@ -1,9 +1,9 @@
 # ServerPi Services - WatchYourLan Compose File
-# Prepared by Samyar Sadat Akhavi, 2024. 
+# Prepared by Samyar Sadat Akhavi, 2024-2026. 
 
 services:
     watchyourlan:
-        image: aceberg/watchyourlan
+        image: aceberg/watchyourlan:2.1.4
         container_name: watchyourlan
         hostname: watchyourlan
         network_mode: host
