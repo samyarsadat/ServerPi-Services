@@ -49,7 +49,7 @@ services:
                 condition: service_healthy
         volumes:
             - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
-            - caddy_data/logs:/var/log/caddy:ro
+            - caddy_data:/var/log/caddy:ro
             - geoip_databases:/etc/geoip:ro
             - alloy_data:/var/lib/alloy/data
         command:

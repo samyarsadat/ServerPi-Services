@@ -1,0 +1,26 @@
+---
+profile_version: 1
+inventory_hostname: server-pi
+ansible_host: 192.168.1.114
+
+ufw_input_rules:
+  - port: "8840"
+    proto: tcp
+    from_ip: 172.30.0.100
+    comment: WatchYourLan GUI
+
+ufw_route_rules:
+  - to_port: "3100"
+    proto: tcp
+    from_host: server-pi-two
+    comment: Pi2 promtail -> Loki
+
+ufw_docker_rules:
+  - container: wireguard-server
+    port: 51820/udp
+  - container: caddy
+    port: 80/tcp
+  - container: caddy
+    port: 443/tcp
+  - container: caddy
+    port: 443/udp

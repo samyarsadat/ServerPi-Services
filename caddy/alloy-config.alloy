@@ -1,6 +1,6 @@
 local.file_match "caddy_access_logs" {
     path_targets = [{
-        "__path__" = "/var/log/caddy/*.log",
+        "__path__" = "/var/log/caddy/logs/*.log",
         "job"      = "caddy_access_log",
         "host"     = "server-pi",
         "agent"    = "caddy-alloy",
