@@ -1,0 +1,13 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended"
+    ],
+    "baseBranchPatterns": [
+        "server-pi",
+        "server-pi-two"
+    ],
+    "dependencyDashboardAutoclose": true,
+    "schedule": ["* 0-5 * * MON"],
+    "labels": ["dependencies"]
+}
