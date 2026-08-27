@@ -1,0 +1,46 @@
+---
+profile_version: 1
+inventory_hostname: server-pi-two
+ansible_host: 192.168.1.115
+
+ufw_input_rules:
+  - port: "25"
+    proto: tcp
+    from_ip: 0.0.0.0/0
+    comment: SMTP inbound
+  - port: "143"
+    proto: tcp
+    from_ip: 0.0.0.0/0
+    comment: IMAP STARTTLS
+  - port: "465"
+    proto: tcp
+    from_ip: 0.0.0.0/0
+    comment: submission implicit TLS
+  - port: "587"
+    proto: tcp
+    from_ip: 0.0.0.0/0
+    comment: submission STARTTLS
+  - port: "993"
+    proto: tcp
+    from_ip: 0.0.0.0/0
+    comment: IMAPS
+  - port: "4190"
+    proto: tcp
+    from_ip: 172.16.0.0/12
+    comment: managesieve (docker only)
+
+ufw_route_rules:
+  - to_port: "80"
+    proto: tcp
+    from_host: server-pi
+    comment: Pi1 -> Pi2 Caddy
+  - to_port: "9180"
+    proto: tcp
+    from_host: server-pi
+    comment: Pi1 Prometheus -> Pi2 Caddy
+
+ufw_docker_rules:
+  - container: kms-server
+    port: 1688/tcp
+  - container: kms-server-gui
+    port: 3688/tcp

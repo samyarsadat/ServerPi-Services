@@ -32,7 +32,7 @@ services:
             - secrets.env
         volumes:
             - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
-            - caddy_data/logs:/var/log/caddy:ro
+            - caddy_data:/var/log/caddy:ro
             - alloy_data:/var/lib/alloy/data
         command:
             - run
