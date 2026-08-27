@@ -4,7 +4,7 @@
 services:
     # WEBMAIL CLIENT
     roundcube:
-        image: roundcube/roundcubemail:1.6.11-apache
+        image: roundcube/roundcubemail:1.7.3-apache
         container_name: roundcube
         hostname: roundcube
         restart: unless-stopped
