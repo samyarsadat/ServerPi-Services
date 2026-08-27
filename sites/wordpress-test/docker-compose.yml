@@ -32,7 +32,7 @@ services:
             - internal-net
 
     nginx:
-        image: nginx:1.27-alpine
+        image: nginx:1.31-alpine
         container_name: wordpress-test-nginx
         hostname: wordpress-test-nginx
         restart: unless-stopped
