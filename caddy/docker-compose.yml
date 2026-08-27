@@ -13,8 +13,8 @@ services:
             - 9180:9180
         volumes:
             - ./Caddyfile:/etc/caddy/Caddyfile:ro
-            - ./caddy_config:/config
-            - ./caddy_data:/data
+            - caddy_config:/config
+            - caddy_data:/data
         networks:
             default:
                 ipv4_address: 172.30.0.100
@@ -32,8 +32,8 @@ services:
             - secrets.env
         volumes:
             - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
-            - ./caddy_data/logs:/var/log/caddy:ro
-            - ./alloy_data:/var/lib/alloy/data
+            - caddy_data/logs:/var/log/caddy:ro
+            - alloy_data:/var/lib/alloy/data
         command:
             - run
             - --server.http.listen-addr=0.0.0.0:12345
@@ -45,3 +45,8 @@ networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
+
+volumes:
+    caddy_config:
+    caddy_data:
+    alloy_data:

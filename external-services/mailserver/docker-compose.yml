@@ -19,13 +19,13 @@ services:
             mail-certbot:
                 condition: service_healthy
         volumes:
-            - ./data/dms/mail-data:/var/mail
-            - ./data/dms/mail-state:/var/mail-state
-            - ./data/dms/mail-logs:/var/log/mail
-            - ./data/dms/config:/tmp/docker-mailserver
             - ./user-patches.sh:/tmp/docker-mailserver/user-patches.sh:ro
             - ./postfix-main.cf:/tmp/docker-mailserver/postfix-main.cf:ro
-            - ./data/certbot/etc:/etc/letsencrypt:ro
+            - mail_data:/var/mail
+            - mail_state:/var/mail-state
+            - mail_logs:/var/log/mail
+            - mail_config:/tmp/docker-mailserver
+            - certbot:/etc/letsencrypt:ro
             - /etc/localtime:/etc/localtime:ro
 
     # LET'S ENCRYPT CERTBOT
@@ -40,7 +40,7 @@ services:
         entrypoint: ["/bin/sh", "/certbot-entrypoint.sh"]
         volumes:
             - ./certbot-entrypoint.sh:/certbot-entrypoint.sh:ro
-            - ./data/certbot/etc:/etc/letsencrypt
+            - certbot:/etc/letsencrypt
         healthcheck:
             test:
                 - CMD-SHELL
@@ -60,3 +60,10 @@ services:
             interval: 10m
             timeout: 10s
             retries: 5
+
+volumes:
+    mail_data:
+    mail_state:
+    mail_logs:
+    mail_config:
+    certbot:

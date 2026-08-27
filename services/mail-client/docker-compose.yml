@@ -14,14 +14,17 @@ services:
         extra_hosts:
             - "${MAIL_HOST}:${HOST_IP_ADDR}"
         volumes:
-            - ./data/db:/var/roundcube/db
-            - ./data/config:/var/www/html/config
-            - ./data/temp:/tmp/roundcube-temp
+            - data_db:/var/roundcube/db
+            - data_config:/var/www/html/config
+            - data_tmp:/tmp/roundcube-temp
             - ./roundcube_conf.inc.php:/var/www/html/config/custom.inc.php:ro
-        expose:
-            - 80
 
 networks:
     default:
         name: $DOCKER_MY_NETWORK
         external: true
+
+volumes:
+    data_db:
+    data_config:
+    data_tmp:

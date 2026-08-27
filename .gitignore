@@ -1,10 +1,4 @@
 **/.idea
 **/.vscode
-/caddy/caddy_config
-/caddy/caddy_data
-/caddy/alloy_data
-/external-services/kms-server/data
-/external-services/mailserver/data
-/services/mail-client/data
 **/secrets.env
 **/*.secrets.env
