@@ -5,7 +5,8 @@
     ],
     "baseBranchPatterns": [
         "server-pi",
-        "server-pi-two"
+        "server-pi-two",
+        "provisioning"
     ],
     "dependencyDashboardAutoclose": true,
     "schedule": ["* 0-5 * * MON"],
