@@ -1,0 +1,21 @@
+---
+- name: Install base host packages
+  ansible.builtin.apt:
+      name:
+        - ca-certificates
+        - unattended-upgrades
+        - ufw
+      state: present
+      update_cache: true
+      cache_valid_time: 3600
+
+- name: Remove unused host packages
+  ansible.builtin.apt:
+      name:
+        - avahi-daemon
+        - modemmanager
+        - snapd
+        - udisks2
+        - wpasupplicant
+      state: absent
+      purge: true

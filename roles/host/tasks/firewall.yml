@@ -1,0 +1,151 @@
+---
+- name: Configure IPv6 processing in UFW
+  ansible.builtin.lineinfile:
+      path: /etc/default/ufw
+      regexp: ^IPV6=
+      line: "IPV6={{(ufw_ipv6_enabled | bool) | ternary('yes', 'no')}}"
+  notify: Reload UFW
+
+- name: Configure UFW default policies
+  community.general.ufw:
+      direction: "{{item.key}}"
+      policy: "{{item.value}}"
+  loop: "{{ufw_default_policies | dict2items}}"
+  loop_control:
+      label: "{{item.key}}: {{item.value}}"
+
+- name: Build the desired input rule set
+  ansible.builtin.set_fact:
+      host_ufw_desired_input_rules: "{{ufw_common_input_rules + ufw_input_rules}}"
+      host_ufw_desired_route_rules: []
+
+- name: Resolve host references in routed rules
+  ansible.builtin.set_fact:
+      host_ufw_desired_route_rules: >-
+          {{host_ufw_desired_route_rules + [item | combine({'from_ip': host_rule_source})]}}
+  vars:
+      host_rule_source: >-
+          {{item.from_ip if item.from_ip is defined else hostvars[item.from_host].ansible_host}}
+  loop: "{{ufw_route_rules}}"
+  loop_control:
+      label: "{{item.comment}}"
+
+- name: Check the previously managed native UFW rules
+  ansible.builtin.stat:
+      path: "{{serverpi_ufw_state_file}}"
+  register: host_ufw_state_status
+
+- name: Read the previously managed native UFW rules
+  ansible.builtin.slurp:
+      src: "{{serverpi_ufw_state_file}}"
+  when: host_ufw_state_status.stat.isreg | default(false)
+  register: host_ufw_state_file
+
+- name: Decode the previously managed native UFW rules
+  ansible.builtin.set_fact:
+      host_previous_ufw_rules: >-
+          {{
+              (host_ufw_state_file.content | b64decode | from_json)
+              if host_ufw_state_status.stat.isreg | default(false)
+              else {'input': [], 'route': []}
+          }}
+
+- name: Configure desired host input rules
+  community.general.ufw:
+      rule: allow
+      from_ip: "{{item.from_ip}}"
+      to_port: "{{item.port}}"
+      proto: "{{item.proto}}"
+      comment: "{{item.comment}}"
+  loop: "{{host_ufw_desired_input_rules}}"
+  loop_control:
+      label: "{{item.comment}}"
+
+- name: Configure desired routed rules
+  community.general.ufw:
+      rule: allow
+      route: true
+      from_ip: "{{item.from_ip}}"
+      to_ip: "{{item.to_ip | default(omit)}}"
+      to_port: "{{item.to_port}}"
+      proto: "{{item.proto}}"
+      comment: "{{item.comment}}"
+  loop: "{{host_ufw_desired_route_rules}}"
+  loop_control:
+      label: "{{item.comment}}"
+
+- name: Remove stale managed host input rules
+  community.general.ufw:
+      delete: true
+      rule: allow
+      from_ip: "{{item.from_ip}}"
+      to_port: "{{item.port}}"
+      proto: "{{item.proto}}"
+  vars:
+      host_ufw_rule_identity_fields:
+        - from_ip
+        - port
+        - proto
+      host_ufw_desired_rule_identities: >-
+          {{host_ufw_desired_input_rules | community.general.keep_keys(target=host_ufw_rule_identity_fields)}}
+  loop: >-
+      {{
+          host_previous_ufw_rules.input
+          | community.general.keep_keys(target=host_ufw_rule_identity_fields)
+          | reject('in', host_ufw_desired_rule_identities)
+          | list
+      }}
+  loop_control:
+      label: "{{item.from_ip}} -> {{item.port}}/{{item.proto}}"
+
+- name: Remove stale managed routed rules
+  community.general.ufw:
+      delete: true
+      rule: allow
+      route: true
+      from_ip: "{{item.from_ip}}"
+      to_ip: "{{item.to_ip | default(omit)}}"
+      to_port: "{{item.to_port}}"
+      proto: "{{item.proto}}"
+  vars:
+      host_ufw_rule_identity_fields:
+        - from_ip
+        - to_ip
+        - to_port
+        - proto
+      host_ufw_desired_rule_identities: >-
+          {{host_ufw_desired_route_rules | community.general.keep_keys(target=host_ufw_rule_identity_fields)}}
+  loop: >-
+      {{
+          host_previous_ufw_rules.route
+          | community.general.keep_keys(target=host_ufw_rule_identity_fields)
+          | reject('in', host_ufw_desired_rule_identities)
+          | list
+      }}
+  loop_control:
+      label: "{{item.from_ip}} -> {{item.to_ip | default('any')}}: {{item.to_port}}/{{item.proto}}"
+
+- name: Enable UFW
+  community.general.ufw:
+      state: enabled
+
+- name: Save the managed native UFW rule state
+  ansible.builtin.copy:
+      dest: "{{serverpi_ufw_state_file}}"
+      content: >-
+          {{
+            {
+              'input': host_ufw_desired_input_rules,
+              'route': host_ufw_desired_route_rules
+            } | to_nice_json
+          }}
+      owner: root
+      group: root
+      mode: "0600"
+
+- name: Integrate Docker's DOCKER-USER chain with UFW
+  ansible.builtin.command:
+      argv: "{{[ufw_docker_path, 'install', '--docker-subnets'] + ufw_docker_trusted_subnets}}"
+  register: host_ufw_docker_install
+  changed_when: "'Please restart UFW' in (host_ufw_docker_install.stderr | default(''))"
+  notify: Reload UFW

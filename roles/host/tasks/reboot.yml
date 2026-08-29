@@ -1,0 +1,21 @@
+---
+- name: Install the monthly reboot units
+  ansible.builtin.template:
+      src: "{{serverpi_managed_configuration_files[item].source}}"
+      dest: "{{serverpi_managed_configuration_files[item].destination}}"
+      owner: root
+      group: root
+      mode: "0644"
+  notify: Reload systemd
+  loop:
+    - monthly_reboot_service
+    - monthly_reboot_timer
+
+- name: Apply pending systemd changes before enabling the reboot timer
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable the monthly reboot timer
+  ansible.builtin.systemd_service:
+      name: monthly-reboot.timer
+      enabled: true
+      state: started

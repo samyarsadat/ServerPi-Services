@@ -1,0 +1,7 @@
+**/.idea
+**/.vscode
+**/.state/
+**/.venv/
+**/.ansible/
+**/__pycache__/
+group_vars/server_pis/credentials.yml

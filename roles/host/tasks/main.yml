@@ -1,0 +1,35 @@
+---
+- name: Determine the Debian package architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: serverpi_package_architecture
+  changed_when: false
+  check_mode: false
+
+- name: Create the ServerPi state directory
+  ansible.builtin.file:
+      path: "{{serverpi_state_directory}}"
+      state: directory
+      owner: root
+      group: root
+      mode: "0700"
+
+- name: Install/remove required host packages
+  ansible.builtin.import_tasks: packages.yml
+
+- name: Configure kernel parameters
+  ansible.builtin.import_tasks: kernel.yml
+
+- name: Install and configure Docker
+  ansible.builtin.import_tasks: docker.yml
+
+- name: Install host tools
+  ansible.builtin.import_tasks: tools.yml
+
+- name: Configure the firewall
+  ansible.builtin.import_tasks: firewall.yml
+
+- name: Configure automatic updates
+  ansible.builtin.import_tasks: updates.yml
+
+- name: Configure scheduled reboots
+  ansible.builtin.import_tasks: reboot.yml

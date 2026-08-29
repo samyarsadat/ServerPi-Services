@@ -1,0 +1,7 @@
+[Unit]
+Description=ServerPi scheduled monthly reboot
+Documentation=man:systemd.timer(5)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl reboot

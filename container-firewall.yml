@@ -1,0 +1,72 @@
+---
+- name: Reconcile firewall rules for running containers
+  hosts: server_pis
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Reject check mode because container inspection is required
+      ansible.builtin.assert:
+          that:
+            - not ansible_check_mode
+          fail_msg: >-
+              container-firewall.yml must run normally so ufw-docker can inspect
+              live containers. It cannot produce a reliable check-mode preview.
+
+    - name: Check the previously managed ufw-docker rules
+      ansible.builtin.stat:
+          path: "{{serverpi_ufw_docker_state_file}}"
+      register: serverpi_ufw_docker_state_status
+
+    - name: Read the previously managed ufw-docker rules
+      ansible.builtin.slurp:
+          src: "{{serverpi_ufw_docker_state_file}}"
+      when: serverpi_ufw_docker_state_status.stat.isreg | default(false)
+      register: serverpi_ufw_docker_state_content
+
+    - name: Decode the previously managed ufw-docker rules
+      ansible.builtin.set_fact:
+          serverpi_previous_ufw_docker_rules: >-
+              {{
+                  (serverpi_ufw_docker_state_content.content | b64decode | from_json)
+                  if serverpi_ufw_docker_state_status.stat.isreg | default(false)
+                  else []
+              }}
+
+    - name: Confirm each desired container is running
+      ansible.builtin.command:
+          argv:
+            - /usr/bin/docker
+            - inspect
+            - --format={{'{{'}}.State.Running{{'}}'}}
+            - "{{item.container}}"
+      loop: "{{ufw_docker_rules}}"
+      loop_control:
+          label: "{{item.container}}"
+      register: host_container_states
+      changed_when: false
+      failed_when: host_container_states.rc != 0 or host_container_states.stdout != "true"
+
+    - name: Let ufw-docker create desired container exposure rules
+      ansible.builtin.command: "{{ufw_docker_path}} allow {{item.container}} {{item.port}}"
+      loop: "{{ufw_docker_rules}}"
+      loop_control:
+          label: "{{item.container}} {{item.port}}"
+      register: host_ufw_docker_allow
+      changed_when: "'Rule added' in host_ufw_docker_allow.stdout"
+
+    - name: Delete stale managed container exposure rules
+      ansible.builtin.command: "{{ufw_docker_path}} delete allow {{item.container}} {{item.port}}"
+      loop: "{{serverpi_previous_ufw_docker_rules | reject('in', ufw_docker_rules) | list}}"
+      loop_control:
+          label: "{{item.container}} {{item.port}}"
+      register: host_ufw_docker_delete
+      changed_when: "'Rule deleted' in host_ufw_docker_delete.stdout"
+
+    - name: Save the managed ufw-docker rule state
+      ansible.builtin.copy:
+          dest: "{{serverpi_ufw_docker_state_file}}"
+          content: "{{ufw_docker_rules | to_nice_json}}"
+          owner: root
+          group: root
+          mode: "0600"

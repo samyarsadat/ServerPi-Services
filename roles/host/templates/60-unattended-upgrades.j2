@@ -1,0 +1,12 @@
+// Managed by Ansible.
+Unattended-Upgrade::Origins-Pattern {
+{% for origin in unattended_upgrades_origins %}
+    "{{origin}}";
+{% endfor %}
+};
+
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+
+// Reboots are intentionally owned by monthly-reboot.timer instead.
+Unattended-Upgrade::Automatic-Reboot "false";

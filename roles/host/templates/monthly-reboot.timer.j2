@@ -1,0 +1,11 @@
+[Unit]
+Description=Reboot ServerPi on the first Sunday of each month
+
+[Timer]
+OnCalendar={{monthly_reboot_calendar}}
+RandomizedDelaySec={{monthly_reboot_randomized_delay}}
+Persistent=false
+Unit=monthly-reboot.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,210 @@
+---
+- name: Verify ServerPi host provisioning
+  hosts: server_pis
+  become: true
+  gather_facts: true
+
+  vars:
+      serverpi_essential_units:
+        - docker.service
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+        - monthly-reboot.timer
+      serverpi_pinned_files:
+        - name: ctop
+          path: "{{ctop_path}}"
+          checksum: >-
+              {{serverpi_architectures[ansible_facts["architecture"]].ctop_checksum.split(':', 1)[1]}}
+        - name: ufw-docker
+          path: "{{ufw_docker_path}}"
+          checksum: "{{ufw_docker_checksum.split(':', 1)[1]}}"
+        - name: secret management tool
+          path: "{{serverpi_secret_tool_path}}"
+          checksum: "{{serverpi_secret_tool_checksum}}"
+
+  tasks:
+    - name: Check Docker Compose
+      ansible.builtin.command: /usr/bin/docker compose version
+      changed_when: false
+
+    - name: Check managed configuration files
+      ansible.builtin.template:
+          src: "{{item.value.source}}"
+          dest: "{{item.value.destination}}"
+          owner: root
+          group: root
+          mode: "0644"
+      loop: "{{serverpi_managed_configuration_files | dict2items}}"
+      loop_control:
+          label: "{{item.key}}"
+      check_mode: true
+      register: serverpi_managed_configurations
+
+    - name: Require managed configuration files to match Ansible
+      ansible.builtin.assert:
+          that:
+            - not serverpi_managed_configuration.changed
+          fail_msg: >-
+              {{serverpi_managed_configuration.item.value.destination}} does not match
+              {{serverpi_managed_configuration.item.value.source}}.
+      loop: "{{serverpi_managed_configurations.results}}"
+      loop_control:
+          loop_var: serverpi_managed_configuration
+          label: "{{serverpi_managed_configuration.item.key}}"
+
+    - name: Read the shared Caddy network
+      ansible.builtin.command: /usr/bin/docker network inspect {{docker_caddy_network_name}}
+      register: serverpi_docker_caddy_network
+      changed_when: false
+
+    - name: Require persistent kernel parameters
+      ansible.builtin.command: >-
+          /usr/bin/grep --extended-regexp --quiet --
+          "^[[:space:]]*{{serverpi_kernel_parameter.name | regex_escape}}[[:space:]]*=[[:space:]]*{{serverpi_kernel_parameter.value | regex_escape}}[[:space:]]*(#.*)?$"
+          /etc/sysctl.conf
+      loop: "{{serverpi_kernel_parameters}}"
+      loop_control:
+          loop_var: serverpi_kernel_parameter
+          label: "{{serverpi_kernel_parameter.name}}"
+      changed_when: false
+
+    - name: Read active kernel parameters
+      ansible.builtin.command: /usr/sbin/sysctl -n {{serverpi_kernel_parameter.name}}
+      loop: "{{serverpi_kernel_parameters}}"
+      loop_control:
+          loop_var: serverpi_kernel_parameter
+          label: "{{serverpi_kernel_parameter.name}}"
+      register: serverpi_kernel_parameter_values
+      changed_when: false
+
+    - name: Check ctop
+      ansible.builtin.command: "{{ctop_path}} -v"
+      changed_when: false
+
+    - name: Read installed tool checksums
+      ansible.builtin.stat:
+          path: "{{item.path}}"
+          checksum_algorithm: sha256
+      loop: "{{serverpi_pinned_files}}"
+      loop_control:
+          label: "{{item.name}}"
+      register: serverpi_pinned_file_metadata
+
+    - name: Read operator group membership
+      ansible.builtin.command: /usr/bin/id -nG {{ansible_user}}
+      register: serverpi_operator_groups
+      changed_when: false
+
+    - name: Check ufw-docker integration
+      ansible.builtin.command: "{{ufw_docker_path}} check"
+      changed_when: false
+
+    - name: Read ufw-docker rules
+      ansible.builtin.command: "{{ufw_docker_path}} status"
+      register: serverpi_ufw_docker_status
+      changed_when: false
+
+    - name: Read UFW status
+      ansible.builtin.command: /usr/sbin/ufw status verbose
+      register: serverpi_ufw_status
+      changed_when: false
+      environment:
+          LC_ALL: C
+
+    - name: Require UFW IPv6 configuration
+      ansible.builtin.command: >-
+          /usr/bin/grep --fixed-strings --line-regexp
+          IPV6={{(ufw_ipv6_enabled | bool) | ternary('yes', 'no')}}
+          /etc/default/ufw
+      changed_when: false
+
+    - name: Require essential units to be enabled
+      ansible.builtin.command: /usr/bin/systemctl is-enabled {{item}}
+      loop: "{{serverpi_essential_units}}"
+      changed_when: false
+
+    - name: Require essential units to be active
+      ansible.builtin.command: /usr/bin/systemctl is-active {{item}}
+      loop: "{{serverpi_essential_units}}"
+      changed_when: false
+
+    - name: Require the configured Caddy network
+      ansible.builtin.assert:
+          that:
+            - serverpi_docker_caddy_network_configuration.Driver == docker_caddy_network_driver
+            - docker_caddy_network_subnet in serverpi_docker_caddy_network_subnets
+      vars:
+          serverpi_docker_caddy_network_configuration: >-
+              {{serverpi_docker_caddy_network.stdout | from_json | first}}
+          serverpi_docker_caddy_network_subnets: >-
+              {{serverpi_docker_caddy_network_configuration.IPAM.Config | map(attribute='Subnet') | list}}
+
+    - name: Require configured kernel parameters
+      ansible.builtin.assert:
+          that:
+            - serverpi_kernel_parameter_result.stdout == serverpi_kernel_parameter_result.serverpi_kernel_parameter.value
+      loop: "{{serverpi_kernel_parameter_values.results}}"
+      loop_control:
+          loop_var: serverpi_kernel_parameter_result
+          label: "{{serverpi_kernel_parameter_result.serverpi_kernel_parameter.name}}"
+
+    - name: Require UFW to be active
+      ansible.builtin.assert:
+          that:
+            - "'Status: active' in (serverpi_ufw_status.stdout_lines | map('trim') | list)"
+
+    - name: Require operator access to Docker
+      ansible.builtin.assert:
+          that:
+            - "'docker' in serverpi_operator_groups.stdout.split()"
+
+    - name: Require configured UFW default policies
+      ansible.builtin.assert:
+          that:
+            - (item.value ~ ' (' ~ item.key ~ ')') in serverpi_ufw_default_status
+          fail_msg: UFW does not report {{item.value}} as its {{item.key}} policy.
+      loop: "{{ufw_default_policies | dict2items}}"
+      loop_control:
+          label: "{{item.key}}: {{item.value}}"
+      vars:
+          serverpi_ufw_default_status: >-
+              {{serverpi_ufw_status.stdout_lines | select('match', '^Default:') | first | default('')}}
+
+    - name: Require pinned files
+      ansible.builtin.assert:
+          that:
+            - serverpi_pinned_file.stat.isreg | default(false)
+            - serverpi_pinned_file.stat.checksum | default('') == serverpi_pinned_file.item.checksum
+          fail_msg: "{{serverpi_pinned_file.item.path}} is missing or has the wrong checksum."
+      loop: "{{serverpi_pinned_file_metadata.results}}"
+      loop_control:
+          loop_var: serverpi_pinned_file
+          label: "{{serverpi_pinned_file.item.name}}"
+
+    - name: Require every declared native UFW rule
+      ansible.builtin.assert:
+          that:
+            - >-
+              (serverpi_ufw_status.stdout | regex_search('(?m)#[ \t]*'
+                  ~ (item.comment | regex_escape)
+                  ~ '[ \t]*$'))
+              is not none
+          fail_msg: "Missing UFW rule: {{item.comment}}"
+      loop: "{{ufw_common_input_rules + ufw_input_rules + ufw_route_rules}}"
+      loop_control:
+          label: "{{item.comment}}"
+
+    - name: Require every declared ufw-docker rule
+      ansible.builtin.assert:
+          that:
+            - >-
+              (serverpi_ufw_docker_status.stdout | regex_search('(?m)(^|[ \t])allow[ \t]+'
+                  ~ (item.container | regex_escape)
+                  ~ '[ \t]+'
+                  ~ (item.port | regex_escape)
+                  ~ '([ \t]|$)'))
+              is not none
+          fail_msg: "Missing ufw-docker rule: {{item.container}} {{item.port}}"
+      loop: "{{ufw_docker_rules}}"
+      loop_control:
+          label: "{{item.container}} {{item.port}}"

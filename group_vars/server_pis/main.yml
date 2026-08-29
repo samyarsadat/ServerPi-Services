@@ -1,0 +1,87 @@
+---
+ansible_user: samyarsadat
+
+docker_users:
+  - "{{ansible_user}}"
+docker_log_driver: json-file
+docker_log_max_size: 10m
+docker_log_max_files: "3"
+docker_caddy_network_name: caddy-net
+docker_caddy_network_driver: bridge
+docker_caddy_network_subnet: 172.30.0.0/24
+docker_apt_signing_key_path: /etc/apt/keyrings/docker.asc
+
+serverpi_managed_configuration_files:
+    docker_daemon:
+        source: "{{playbook_dir}}/roles/host/templates/daemon.json.j2"
+        destination: /etc/docker/daemon.json
+    unattended_upgrade_schedule:
+        source: "{{playbook_dir}}/roles/host/templates/20-auto-upgrades.j2"
+        destination: /etc/apt/apt.conf.d/20-auto-upgrades
+    unattended_upgrade_policy:
+        source: "{{playbook_dir}}/roles/host/templates/60-unattended-upgrades.j2"
+        destination: /etc/apt/apt.conf.d/60-unattended-upgrades
+    monthly_reboot_service:
+        source: "{{playbook_dir}}/roles/host/templates/monthly-reboot.service.j2"
+        destination: /etc/systemd/system/monthly-reboot.service
+    monthly_reboot_timer:
+        source: "{{playbook_dir}}/roles/host/templates/monthly-reboot.timer.j2"
+        destination: /etc/systemd/system/monthly-reboot.timer
+
+serverpi_kernel_parameters:
+  - name: vm.overcommit_memory
+    value: "1"
+  - name: net.core.rmem_max
+    value: "7500000"
+  - name: net.core.wmem_max
+    value: "7500000"
+
+serverpi_architectures:
+    aarch64:
+        ctop_checksum: sha256:d8d91e0fea53a8c78fa81192f078272e5a92f0ea6c4f0e38ec7c944d76e6f02f
+    x86_64:
+        ctop_checksum: sha256:b78374734ebe3d14b6edee3d5512c911c250d7fa7f3f964cb00acd3bc5a02a09
+
+ctop_version: 0.7.7
+ctop_path: /usr/local/bin/ctop
+ufw_docker_version: 020a8699f95592561f254d8d4ad1bb40d401dfc7
+ufw_docker_checksum: sha256:643e56b080567c567b4aa28650196849b2a2da5dd0473fd3e5216b0886035ab0
+ufw_docker_path: /usr/local/bin/ufw-docker
+
+serverpi_secret_tool_source: "{{playbook_dir}}/scripts/manage-secrets.py"
+serverpi_secret_tool_path: /usr/local/libexec/serverpi/manage-secrets.py
+serverpi_secret_tool_checksum: >-
+    {{lookup('ansible.builtin.file', serverpi_secret_tool_source, rstrip=false) | hash('sha256')}}
+serverpi_secret_state_file: "{{playbook_dir}}/.state/generated-secrets.json"
+
+serverpi_state_directory: /etc/serverpi
+serverpi_ufw_state_file: "{{serverpi_state_directory}}/ufw-rules.json"
+serverpi_ufw_docker_state_file: "{{serverpi_state_directory}}/ufw-docker-rules.json"
+
+ufw_docker_trusted_subnets:
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - fd00::/8
+ufw_ipv6_enabled: true
+ufw_default_policies:
+    incoming: deny
+    outgoing: allow
+    routed: deny
+ufw_common_input_rules:
+  - port: "22"
+    proto: tcp
+    from_ip: 0.0.0.0/0
+    comment: SSH (IPv4 only)
+
+ufw_input_rules: []
+ufw_route_rules: []
+ufw_docker_rules: []
+
+unattended_upgrades_origins:
+  - origin=${distro_id}
+  - origin=Docker
+
+monthly_reboot_calendar: Sun *-*-01..07 04:00:00 Europe/Istanbul
+monthly_reboot_randomized_delay: 30m
+
+serverpi_services_root: /home/{{ansible_user}}/ServerPi-Services

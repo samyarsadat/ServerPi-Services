@@ -1,0 +1,20 @@
+---
+- name: Configure unattended APT updates
+  ansible.builtin.template:
+      src: "{{serverpi_managed_configuration_files[item].source}}"
+      dest: "{{serverpi_managed_configuration_files[item].destination}}"
+      owner: root
+      group: root
+      mode: "0644"
+  loop:
+    - unattended_upgrade_schedule
+    - unattended_upgrade_policy
+
+- name: Enable the APT update timers
+  ansible.builtin.systemd_service:
+      name: "{{item}}"
+      enabled: true
+      state: started
+  loop:
+    - apt-daily.timer
+    - apt-daily-upgrade.timer

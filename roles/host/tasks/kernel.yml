@@ -1,0 +1,12 @@
+---
+- name: Configure required kernel parameters
+  ansible.posix.sysctl:
+      name: "{{serverpi_kernel_parameter.name}}"
+      value: "{{serverpi_kernel_parameter.value}}"
+      state: present
+      sysctl_set: true
+      reload: false
+  loop: "{{serverpi_kernel_parameters}}"
+  loop_control:
+      loop_var: serverpi_kernel_parameter
+      label: "{{serverpi_kernel_parameter.name}}"

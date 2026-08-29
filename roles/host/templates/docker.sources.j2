@@ -1,0 +1,6 @@
+Types: deb
+URIs: https://download.docker.com/linux/{{ansible_facts["distribution"] | lower}}
+Suites: {{ansible_facts["distribution_release"]}}
+Components: stable
+Architectures: {{serverpi_package_architecture.stdout}}
+Signed-By: {{docker_apt_signing_key_path}}

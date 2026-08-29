@@ -1,0 +1,34 @@
+---
+- name: Install ctop
+  ansible.builtin.get_url:
+      url: https://github.com/bcicen/ctop/releases/download/v{{ctop_version}}/ctop-{{ctop_version}}-linux-{{serverpi_package_architecture.stdout}}
+      dest: "{{ctop_path}}"
+      checksum: "{{serverpi_architectures[ansible_facts[\"architecture\"]].ctop_checksum}}"
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Install the pinned ufw-docker script
+  ansible.builtin.get_url:
+      url: https://raw.githubusercontent.com/chaifeng/ufw-docker/{{ufw_docker_version}}/ufw-docker
+      dest: "{{ufw_docker_path}}"
+      checksum: "{{ufw_docker_checksum}}"
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Create the ServerPi helper directory
+  ansible.builtin.file:
+      path: "{{serverpi_secret_tool_path | dirname}}"
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Install the common secret management tool
+  ansible.builtin.copy:
+      src: "{{serverpi_secret_tool_source}}"
+      dest: "{{serverpi_secret_tool_path}}"
+      owner: root
+      group: root
+      mode: "0755"
