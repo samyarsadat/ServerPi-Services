@@ -1,0 +1,27 @@
+service stats {
+    inet_listener http {
+        address = 0.0.0.0
+        port = 9900
+    }
+}
+
+metric auth_success {
+    filter = event=auth_request_finished AND success=yes
+}
+
+metric auth_failure {
+    filter = event=auth_request_finished AND NOT success=yes
+}
+
+metric imap_command {
+    filter = event=imap_command_finished
+    group_by = cmd_name tagged_reply_state
+}
+
+metric mail_delivery {
+    filter = event=mail_delivery_finished
+}
+
+metric mail_session {
+    filter = event=mail_user_session_finished
+}

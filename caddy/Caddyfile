@@ -11,23 +11,35 @@
         @not_server_pi not remote_ip {$SVPI1_IP_ADDR}
         respond @not_server_pi "Forbidden" 403
 
-        handle /metrics {
-            metrics /metrics
-        }
+        handle_path /metrics/* {
+            handle /caddy {
+                metrics /caddy
+            }
 
-        handle /node-metrics {
-            rewrite * /metrics
-            reverse_proxy node-exporter:9100
-        }
+            handle /caddy-alloy {
+                rewrite * /metrics
+                reverse_proxy caddy-alloy:12345
+            }
 
-        handle /cadvisor-metrics {
-            rewrite * /metrics
-            reverse_proxy cadvisor:8080
-        }
+            handle /node {
+                rewrite * /metrics
+                reverse_proxy node-exporter:9100
+            }
 
-        handle /alloy-metrics {
-            rewrite * /metrics
-            reverse_proxy caddy-alloy:12345
+            handle /cadvisor {
+                rewrite * /metrics
+                reverse_proxy cadvisor:8080
+            }
+
+            handle /dovecot {
+                rewrite * /metrics
+                reverse_proxy {$HOST_IP_ADDR}:9900
+            }
+
+            handle /postfix {
+                rewrite * /metrics
+                reverse_proxy postfix-exporter:9907
+            }
         }
 
         respond "Not found" 404

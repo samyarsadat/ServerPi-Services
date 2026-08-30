@@ -28,6 +28,10 @@ ufw_input_rules:
     proto: tcp
     from_ip: 172.16.0.0/12
     comment: managesieve (docker only)
+  - port: "9900"
+    proto: tcp
+    from_ip: 172.30.0.100
+    comment: dovecot openmetrics (caddy only)
 
 ufw_route_rules:
   - to_port: "80"
