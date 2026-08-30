@@ -2,6 +2,11 @@
 # Warning: generated with AI assistance!
 set -euo pipefail
 
+# fix log file permissions for the exporter
+touch /var/log/mail/mail.log
+chgrp adm /var/log/mail/mail.log
+chmod 0640 /var/log/mail/mail.log
+
 SPLIT_DOMAINS=("gigawhat.net")
 ACCOUNTS_FILE="/tmp/docker-mailserver/postfix-accounts.cf"
 TRANSPORT_SRC="/etc/postfix/dms-split-transport"
