@@ -58,6 +58,8 @@ services:
             - --storage.path=/var/lib/alloy/data
             - --disable-reporting
             - /etc/alloy/config.alloy
+        labels:
+            org.label-schema.group: monitoring
 
 networks:
     default:

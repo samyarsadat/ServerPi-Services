@@ -21,7 +21,8 @@ services:
         hostname: wordpress-test
         restart: unless-stopped
         depends_on:
-            - database
+            database:
+                condition: service_started
         env_file:
             - .env
             - wordpress.secrets.env

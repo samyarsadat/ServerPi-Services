@@ -6,54 +6,111 @@ global:
     evaluation_interval: 15s
 
 scrape_configs:
-    - job_name: nodeexporter
-      static_configs:
-          - {targets: ["node-exporter:9100"], labels: {host: "server-pi"}}
+    # SERVERPI ONE TARGETS
+  - job_name: nodeexporter
+    static_configs:
+      - targets:
+          - "node-exporter:9100"
+        labels: &svpi_labels
+            host: "server-pi"
 
-    - job_name: cadvisor
-      static_configs:
-          - {targets: ["cadvisor:8080"], labels: {host: "server-pi"}}
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - "cadvisor:8080"
+        labels: *svpi_labels
 
-    - job_name: prometheus
-      static_configs:
-          - targets: ["localhost:9090"]
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - "localhost:9090"
+        labels: *svpi_labels
 
-    - job_name: grafana
-      static_configs:
-          - targets: ["grafana:3000"]
+  - job_name: grafana
+    static_configs:
+      - targets:
+          - "grafana:3000"
+        labels: *svpi_labels
 
-    - job_name: loki
-      static_configs:
-          - targets: ["loki:3100"]
+  - job_name: loki
+    static_configs:
+      - targets:
+          - "loki:3100"
+        labels: *svpi_labels
 
-    - job_name: caddy
-      static_configs:
-          - targets: ["caddy:9180"]
+  - job_name: caddy
+    static_configs:
+      - targets:
+          - "caddy:9180"
+        labels: *svpi_labels
 
-    - job_name: alloy
-      static_configs:
-          - targets: ["caddy-alloy:12345"]
+  - job_name: caddy_alloy
+    static_configs:
+      - targets:
+          - "caddy-alloy:12345"
+        labels: *svpi_labels
 
-    - job_name: wireguard
-      metrics_path: /metrics/prometheus
-      static_configs:
-          - targets: ["wireguard-server:80"]
+  - job_name: wireguard
+    metrics_path: /metrics/prometheus
+    static_configs:
+      - targets:
+          - "wireguard-server:80"
+        labels: *svpi_labels
 
-    - job_name: nodeexporter_svpi2
-      metrics_path: /node-metrics
-      static_configs:
-          - {targets: ["server-pi-two:9180"], labels: {host: "server-pi-two"}}
+  - job_name: authelia
+    static_configs:
+      - targets:
+          - "authelia:9959"
+        labels: *svpi_labels
 
-    - job_name: cadvisor_svpi2
-      metrics_path: /cadvisor-metrics
-      static_configs:
-          - {targets: ["server-pi-two:9180"], labels: {host: "server-pi-two"}}
+  - job_name: wordpress
+    scrape_interval: 60s
+    metrics_path: /
+    params:
+        slymetrics: ["1"]
+    authorization:
+        type: Bearer
+        credentials_file: /tmp/wordpress_slymetrics_bearer_token
+    static_configs:
+      - targets:
+          - "wordpress-test-nginx:8088"
+        labels: *svpi_labels
 
-    - job_name: caddy_svpi2
-      static_configs:
-          - targets: ["server-pi-two:9180"]
+    # SERVERPI TWO TARGETS
+  - job_name: nodeexporter_svpi2
+    metrics_path: /metrics/node
+    static_configs:
+      - targets: &svpi2_endpoint
+          - "server-pi-two:9180"
+        labels: &svpi2_labels
+            host: "server-pi-two"
 
-    - job_name: alloy_svpi2
-      metrics_path: /alloy-metrics
-      static_configs:
-          - targets: ["server-pi-two:9180"]
+  - job_name: cadvisor_svpi2
+    metrics_path: /metrics/cadvisor
+    static_configs:
+      - targets: *svpi2_endpoint
+        labels: *svpi2_labels
+
+  - job_name: caddy_svpi2
+    metrics_path: /metrics/caddy
+    static_configs:
+      - targets: *svpi2_endpoint
+        labels: *svpi2_labels
+
+  - job_name: caddy_alloy_svpi2
+    metrics_path: /metrics/caddy-alloy
+    static_configs:
+      - targets: *svpi2_endpoint
+        labels: *svpi2_labels
+
+  - job_name: dovecot_svpi2
+    metrics_path: /metrics/dovecot
+    static_configs:
+      - targets: *svpi2_endpoint
+        labels: *svpi2_labels
+
+  - job_name: postfix_svpi2
+    metrics_path: /metrics/postfix
+    static_configs:
+      - targets: *svpi2_endpoint
+        labels: *svpi2_labels

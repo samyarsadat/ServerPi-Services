@@ -8,6 +8,11 @@ services:
         container_name: prometheus
         hostname: prometheus
         restart: unless-stopped
+        env_file:
+            - prometheus.secrets.env
+        entrypoint:
+            - /bin/sh
+            - /etc/prometheus/entrypoint.sh
         command:
             - --config.file=/etc/prometheus/prometheus.yml
             - --storage.tsdb.path=/prometheus
@@ -16,6 +21,7 @@ services:
         volumes:
             - prometheus_data:/prometheus
             - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - ./prometheus-entrypoint.sh:/etc/prometheus/entrypoint.sh:ro
         extra_hosts:
             server-pi-two: ${SVPI2_IP_ADDR}
         labels:
