@@ -3,6 +3,10 @@ service stats {
         address = 0.0.0.0
         port = 9900
     }
+
+    unix_listener stats-writer {
+        mode = 0666
+    }
 }
 
 metric auth_success {

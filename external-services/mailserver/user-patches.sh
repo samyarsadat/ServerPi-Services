@@ -7,6 +7,9 @@ touch /var/log/mail/mail.log
 chgrp adm /var/log/mail/mail.log
 chmod 0640 /var/log/mail/mail.log
 
+# re-enable Dovecot event delivery to the stats process
+sed -i "s|^stats_writer_socket_path=.*$|stats_writer_socket_path=stats-writer|" /etc/dovecot/dovecot.conf
+
 SPLIT_DOMAINS=("gigawhat.net")
 ACCOUNTS_FILE="/tmp/docker-mailserver/postfix-accounts.cf"
 TRANSPORT_SRC="/etc/postfix/dms-split-transport"
