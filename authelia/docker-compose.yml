@@ -5,7 +5,7 @@ name: "authelia"
 services:
     # AUTHELIA SERVICE
     authelia:
-        image: authelia/authelia:4.39.20
+        image: authelia/authelia:4.39.22
         container_name: authelia
         hostname: authelia
         restart: unless-stopped
