@@ -31,7 +31,7 @@ services:
 
     # POSTFIX PROMETHEUS EXPORTER
     postfix-exporter:
-        image: sergeymakinen/postfix_exporter:v2.1.6
+        image: sergeymakinen/postfix_exporter:v2.1.7
         container_name: postfix-exporter
         hostname: postfix-exporter
         restart: unless-stopped
