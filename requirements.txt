@@ -1,2 +1,2 @@
-ansible-core==2.20.1
+ansible-core==2.21.4
 bcrypt==5.0.0
