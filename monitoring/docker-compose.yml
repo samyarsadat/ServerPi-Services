@@ -4,7 +4,7 @@
 services:
     # MONITORING SYSTEM AND THE METRICS DATABASE
     prometheus:
-        image: prom/prometheus:v3.14.0
+        image: prom/prometheus:v3.15.0
         container_name: prometheus
         hostname: prometheus
         restart: unless-stopped
