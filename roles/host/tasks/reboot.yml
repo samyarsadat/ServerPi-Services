@@ -11,7 +11,7 @@
     - monthly_reboot_service
     - monthly_reboot_timer
 
-- name: Apply pending systemd changes before enabling the reboot timer
+- name: Apply pending configuration changes
   ansible.builtin.meta: flush_handlers
 
 - name: Enable the monthly reboot timer

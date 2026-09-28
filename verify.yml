@@ -6,6 +6,7 @@
 
   vars:
       serverpi_essential_units:
+        - systemd-resolved.service
         - docker.service
         - apt-daily.timer
         - apt-daily-upgrade.timer
@@ -23,6 +24,9 @@
           checksum: "{{serverpi_secret_tool_checksum}}"
 
   tasks:
+    - name: Verify host and container DNS
+      ansible.builtin.import_tasks: tasks/verify-dns.yml
+
     - name: Check Docker Compose
       ansible.builtin.command: /usr/bin/docker compose version
       changed_when: false
@@ -33,7 +37,7 @@
           dest: "{{item.value.destination}}"
           owner: root
           group: root
-          mode: "0644"
+          mode: "{{item.value.mode | default('0644')}}"
       loop: "{{serverpi_managed_configuration_files | dict2items}}"
       loop_control:
           label: "{{item.key}}"

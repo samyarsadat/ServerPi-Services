@@ -54,6 +54,8 @@
   community.general.ufw:
       rule: allow
       from_ip: "{{item.from_ip}}"
+      to_ip: "{{item.to_ip | default(omit)}}"
+      interface_in: "{{item.interface_in | default(omit)}}"
       to_port: "{{item.port}}"
       proto: "{{item.proto}}"
       comment: "{{item.comment}}"
@@ -79,11 +81,15 @@
       delete: true
       rule: allow
       from_ip: "{{item.from_ip}}"
+      to_ip: "{{item.to_ip | default(omit)}}"
+      interface_in: "{{item.interface_in | default(omit)}}"
       to_port: "{{item.port}}"
       proto: "{{item.proto}}"
   vars:
       host_ufw_rule_identity_fields:
         - from_ip
+        - to_ip
+        - interface_in
         - port
         - proto
       host_ufw_desired_rule_identities: >-

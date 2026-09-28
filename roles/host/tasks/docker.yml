@@ -64,13 +64,13 @@
       group: root
       mode: "0644"
       validate: /usr/bin/dockerd --validate --config-file %s
-  register: host_docker_daemon_configuration
+  notify: Restart Docker
 
 - name: Enable Docker
   ansible.builtin.systemd_service:
       name: docker
       enabled: true
-      state: "{{'restarted' if host_docker_daemon_configuration.changed else 'started'}}"
+      state: started
 
 - name: Inspect the shared Caddy network
   ansible.builtin.command: /usr/bin/docker network inspect {{docker_caddy_network_name}}

@@ -1,0 +1,14 @@
+# Managed by Ansible.
+network:
+    version: 2
+    ethernets:
+        {{serverpi_dns_interface}}:
+            dhcp4-overrides:
+                use-dns: false
+                use-domains: false
+            dhcp6-overrides:
+                use-dns: false
+                use-domains: false
+            ra-overrides:
+                use-dns: false
+                use-domains: false

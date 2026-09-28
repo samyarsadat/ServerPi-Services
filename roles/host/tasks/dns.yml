@@ -1,0 +1,39 @@
+---
+- name: Create the resolver configuration directory
+  ansible.builtin.file:
+      path: /etc/systemd/resolved.conf.d
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Configure the shared validating DNS resolver
+  ansible.builtin.template:
+      src: "{{serverpi_managed_configuration_files.resolver.source}}"
+      dest: "{{serverpi_managed_configuration_files.resolver.destination}}"
+      owner: root
+      group: root
+      mode: "0644"
+  notify: Restart DNS resolver
+
+- name: Enable the DNS resolver
+  ansible.builtin.systemd_service:
+      name: systemd-resolved
+      enabled: true
+      state: started
+
+- name: Use the validating stub for host DNS
+  ansible.builtin.file:
+      src: /run/systemd/resolve/stub-resolv.conf
+      dest: /etc/resolv.conf
+      state: link
+      force: true
+
+- name: Disable interface-provided DNS
+  ansible.builtin.template:
+      src: "{{serverpi_managed_configuration_files.interface_dns.source}}"
+      dest: "{{serverpi_managed_configuration_files.interface_dns.destination}}"
+      owner: root
+      group: root
+      mode: "{{serverpi_managed_configuration_files.interface_dns.mode}}"
+  notify: Apply Netplan configuration

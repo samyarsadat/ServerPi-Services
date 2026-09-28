@@ -3,6 +3,8 @@
   ansible.builtin.apt:
       name:
         - ca-certificates
+        - bind9-dnsutils
+        - systemd-resolved
         - unattended-upgrades
         - ufw
       state: present

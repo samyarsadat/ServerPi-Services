@@ -11,7 +11,21 @@ docker_caddy_network_driver: bridge
 docker_caddy_network_subnet: 172.30.0.0/24
 docker_apt_signing_key_path: /etc/apt/keyrings/docker.asc
 
+serverpi_dns_servers:
+  - 1.1.1.1
+  - 8.8.8.8
+serverpi_dns_interface: eth0
+serverpi_dns_listener: "{{ansible_host}}"
+serverpi_dnssec: "yes"
+
 serverpi_managed_configuration_files:
+    resolver:
+        source: "{{playbook_dir}}/roles/host/templates/resolved.conf.j2"
+        destination: /etc/systemd/resolved.conf.d/60-serverpi.conf
+    interface_dns:
+        source: "{{playbook_dir}}/roles/host/templates/netplan-dns.yaml.j2"
+        destination: /etc/netplan/90-serverpi-dns.yaml
+        mode: "0600"
     docker_daemon:
         source: "{{playbook_dir}}/roles/host/templates/daemon.json.j2"
         destination: /etc/docker/daemon.json
@@ -50,8 +64,7 @@ ufw_docker_path: /usr/local/bin/ufw-docker
 
 serverpi_secret_tool_source: "{{playbook_dir}}/scripts/manage-secrets.py"
 serverpi_secret_tool_path: /usr/local/libexec/serverpi/manage-secrets.py
-serverpi_secret_tool_checksum: >-
-    {{lookup('ansible.builtin.file', serverpi_secret_tool_source, rstrip=false) | hash('sha256')}}
+serverpi_secret_tool_checksum: "{{lookup('ansible.builtin.file', serverpi_secret_tool_source, rstrip=false) | hash('sha256')}}"
 serverpi_secret_state_file: "{{playbook_dir}}/.state/generated-secrets.json"
 
 serverpi_state_directory: /etc/serverpi
@@ -72,6 +85,18 @@ ufw_common_input_rules:
     proto: tcp
     from_ip: 0.0.0.0/0
     comment: SSH (IPv4 only)
+  - port: "53"
+    proto: any
+    from_ip: 0.0.0.0/0
+    to_ip: "{{serverpi_dns_listener}}"
+    interface_in: docker0
+    comment: DNS from Docker bridge
+  - port: "53"
+    proto: any
+    from_ip: 0.0.0.0/0
+    to_ip: "{{serverpi_dns_listener}}"
+    interface_in: br+
+    comment: DNS from Docker user-defined bridges
 
 ufw_input_rules: []
 ufw_route_rules: []

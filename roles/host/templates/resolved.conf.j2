@@ -1,0 +1,11 @@
+# Managed by Ansible.
+[Resolve]
+DNS=
+DNS={{serverpi_dns_servers | join(' ')}}
+FallbackDNS=
+Domains=
+Domains=~.
+DNSSEC={{serverpi_dnssec}}
+DNSStubListener=yes
+DNSStubListenerExtra=
+DNSStubListenerExtra={{serverpi_dns_listener}}

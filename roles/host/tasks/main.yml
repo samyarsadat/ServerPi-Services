@@ -28,6 +28,9 @@
 - name: Configure the firewall
   ansible.builtin.import_tasks: firewall.yml
 
+- name: Configure host and container DNS
+  ansible.builtin.import_tasks: dns.yml
+
 - name: Configure automatic updates
   ansible.builtin.import_tasks: updates.yml
 
