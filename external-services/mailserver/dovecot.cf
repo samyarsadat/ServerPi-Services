@@ -1,6 +1,6 @@
 service stats {
     inet_listener http {
-        address = 0.0.0.0
+        listen = 0.0.0.0
         port = 9900
     }
 
@@ -19,7 +19,10 @@ metric auth_failure {
 
 metric imap_command {
     filter = event=imap_command_finished
-    group_by = cmd_name tagged_reply_state
+    group_by cmd_name {
+    }
+    group_by tagged_reply_state {
+    }
 }
 
 metric mail_delivery {
