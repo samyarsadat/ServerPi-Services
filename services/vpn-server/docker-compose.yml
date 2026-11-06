@@ -3,7 +3,7 @@
 
 services:
     wireguard:
-        image: ghcr.io/wg-easy/wg-easy:15.4.0
+        image: ghcr.io/wg-easy/wg-easy:15.5.0
         container_name: wireguard-server
         hostname: wireguard-server
         env_file:
