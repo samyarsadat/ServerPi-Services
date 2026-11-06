@@ -69,3 +69,10 @@ http://webmail.{$MY_DOMAIN} {
         header_up X-Forwarded-Proto https
     }
 }
+
+http://ics-glpi.{$MY_DOMAIN} {
+    import log_common
+    reverse_proxy glpi:80 {
+        header_up X-Forwarded-Proto https
+    }
+}

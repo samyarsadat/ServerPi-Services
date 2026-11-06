@@ -1,0 +1,36 @@
+# ServerPi Services - GLPI Compose File
+# Prepared by Samyar Sadat Akhavi, 2026. 
+
+services:
+    glpi:
+        image: glpi/glpi:latest
+        container_name: glpi
+        hostname: glpi
+        restart: unless-stopped
+        depends_on:
+            - database
+        env_file:
+            - .env
+            - glpi.secrets.env
+        volumes:
+            - data_glpi:/var/glpi
+    
+    database:
+        image: mysql:26.10
+        container_name: glpi-db
+        hostname: glpi-db
+        restart: unless-stopped
+        env_file:
+            - .env
+            - database.secrets.env
+        volumes:
+            - data_db:/var/lib/mysql
+
+networks:
+    default:
+        name: $DOCKER_MY_NETWORK
+        external: true
+
+volumes:
+    data_glpi:
+    data_db:
