@@ -105,6 +105,16 @@ webmail.{$MY_DOMAIN} {
     reverse_proxy {$SVPI2_IP_ADDR}:80
 }
 
+ics-glpi.{$MY_DOMAIN} {
+    import log_common
+
+    route {
+        import cf_only
+        import secure
+        reverse_proxy {$SVPI2_IP_ADDR}:80
+    }
+}
+
 
 # WWW redirect
 www.{$MY_DOMAIN} {
