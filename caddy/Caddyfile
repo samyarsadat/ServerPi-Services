@@ -107,12 +107,8 @@ webmail.{$MY_DOMAIN} {
 
 ics-glpi.{$MY_DOMAIN} {
     import log_common
-
-    route {
-        import cf_only
-        import secure
-        reverse_proxy {$SVPI2_IP_ADDR}:80
-    }
+    import cf_only
+    reverse_proxy {$SVPI2_IP_ADDR}:80
 }
 
 
