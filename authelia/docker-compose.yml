@@ -19,7 +19,7 @@ services:
 
     # POSTGRES DATABASE FOR AUTHELIA
     database:
-        image: postgres:18
+        image: postgres:19
         container_name: authelia-database
         hostname: authelia-database
         restart: unless-stopped
