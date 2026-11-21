@@ -8,7 +8,9 @@
         "server-pi-two",
         "provisioning"
     ],
-    "dependencyDashboardAutoclose": true,
+    "dependencyDashboard": {
+        "autoclose": true
+    },
     "schedule": ["* 0-5 * * MON"],
     "labels": ["dependencies"]
 }
